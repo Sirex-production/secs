@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
@@ -31,6 +32,7 @@ namespace Secs
 			return this;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireInitSystems()
 		{
 			foreach (var initSystem in _initSystems) 
@@ -39,6 +41,7 @@ namespace Secs
 			_world.UpdateFilters();
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
 			foreach (var runSystem in _runSystems) 
@@ -47,11 +50,13 @@ namespace Secs
 			_world.UpdateFilters();
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
 			foreach (var disposeSystem in _disposeSystems) 
 				disposeSystem.OnDispose();
-
+			
+			_world.UpdateFilters();
 		}
 	}
 }

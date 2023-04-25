@@ -7,13 +7,13 @@ namespace Secs
 	public sealed class EcsFilter : IEnumerable<int>, IDisposable
 	{
 		private readonly EcsWorld _world;
-		private readonly EcsFilterMask _filterMask;
+		private readonly EcsMatcher _matcher;
 		private readonly HashSet<int> _entities;
 
-		public EcsFilter(EcsWorld world, EcsFilterMask filterMask)
+		public EcsFilter(EcsWorld world, EcsMatcher matcher)
 		{
 			_world = world ?? throw new ArgumentNullException(nameof(world));
-			_filterMask = filterMask;
+			_matcher = matcher;
 			_entities = new HashSet<int>(world.config.filter.initialAllocatedEntities);
 			
 			_world.OnEntityDeleted += OnEntityDeleted;
@@ -35,35 +35,35 @@ namespace Secs
 
 		private void OnComponentAddedToEntity(int entityId, Type componentType)
 		{
-			if(_filterMask.IsExcluded(componentType))
+			if(_matcher.IsExcluded(componentType))
 			{
 				_entities.Remove(entityId);
 				return;
 			}
 
-			if(!_filterMask.IsIncluded(componentType))
+			if(!_matcher.IsIncluded(componentType))
 				return;
 
 			var entityComponents = _world.GetEntityComponentsTypeMask(entityId);
 			
-			if(_filterMask.IsSameAsIncludeMask(entityComponents))
+			if(_matcher.IsSameAsIncludeMask(entityComponents))
 				_entities.Add(entityId);
 		}
 
 		private void OnComponentDeletedFromEntity(int entityId, Type componentType)
 		{
-			if(_filterMask.IsIncluded(componentType))
+			if(_matcher.IsIncluded(componentType))
 			{
 				_entities.Remove(entityId);
 				return;
 			}
 
-			if(!_filterMask.IsExcluded(componentType))
+			if(!_matcher.IsExcluded(componentType))
 				return;
 		
 			var entityComponents = _world.GetEntityComponentsTypeMask(entityId);
 
-			if(_filterMask.IsSameAsIncludeMask(entityComponents))
+			if(_matcher.IsSameAsIncludeMask(entityComponents))
 				_entities.Add(entityId);
 		}
 #region Enumeration

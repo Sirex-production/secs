@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 
 namespace Secs
@@ -71,7 +70,7 @@ namespace Secs
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
 			
-			_bitArray[indexOfType] = true;
+			_bitArray[indexOfType] = false;
 		}
 
 #region Comparing

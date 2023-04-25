@@ -2,17 +2,17 @@
 
 namespace Secs
 {
-	public sealed class EcsFilterMask
+	public sealed class EcsMatcher
 	{
 		private readonly EcsTypeMask _includeTypeMask;
 		private readonly EcsTypeMask _excludeTypeMask;
 
-		private EcsFilterMask(Type[] includeTypes)
+		private EcsMatcher(Type[] includeTypes)
 		{
 			_includeTypeMask = new EcsTypeMask(includeTypes);
 		}
 		
-		private EcsFilterMask(Type[] includeTypes, Type[] excludeTypes)
+		private EcsMatcher(Type[] includeTypes, Type[] excludeTypes)
 		{
 			_includeTypeMask = new EcsTypeMask(includeTypes);
 			_excludeTypeMask = new EcsTypeMask(excludeTypes);
@@ -47,13 +47,13 @@ namespace Secs
 #region Comparing
 		public override bool Equals(object obj)
 		{
-			if(obj is not EcsFilterMask ecsFilterMask)
+			if(obj is not EcsMatcher ecsFilterMask)
 				return false;
 
 			return Equals(ecsFilterMask);
 		}
 
-		private bool Equals(EcsFilterMask other)
+		private bool Equals(EcsMatcher other)
 		{
 			if(other is null)
 				return false;
@@ -66,7 +66,7 @@ namespace Secs
 			return HashCode.Combine(_includeTypeMask, _excludeTypeMask);
 		}
 		
-		public static bool operator==(EcsFilterMask first, EcsFilterMask second)
+		public static bool operator==(EcsMatcher first, EcsMatcher second)
 		{
 			if(first is null && second is null)
 				return true;
@@ -77,7 +77,7 @@ namespace Secs
 			return first.Equals(second);
 		}
 
-		public static bool operator!=(EcsFilterMask first, EcsFilterMask second)
+		public static bool operator!=(EcsMatcher first, EcsMatcher second)
 		{
 			if(first is null && second is null)
 				return true;
@@ -90,23 +90,23 @@ namespace Secs
 #endregion
 
 #region Builder
-		public static EcsFilterMaskBuilder Include(params Type[] includeComponentTypes)
+		public static EcsMatcherBuilder Include(params Type[] includeComponentTypes)
 		{
-			return new EcsFilterMaskBuilder(includeComponentTypes);
+			return new EcsMatcherBuilder(includeComponentTypes);
 		}
 		
-		public struct EcsFilterMaskBuilder
+		public struct EcsMatcherBuilder
 		{
 			private readonly Type[] _includeComponentTypes;
 			private Type[] _excludeComponentTypes;
 
-			public EcsFilterMaskBuilder(Type[] includeComponentTypes)
+			public EcsMatcherBuilder(Type[] includeComponentTypes)
 			{
 				_includeComponentTypes = includeComponentTypes;
 				_excludeComponentTypes = null;
 			}
 
-			public EcsFilterMaskBuilder Exclude(params Type[] excludeComponentTypes)
+			public EcsMatcherBuilder Exclude(params Type[] excludeComponentTypes)
 			{
 				if(_excludeComponentTypes != null)
 					throw new ArgumentException("Exclude types were already assigned");
@@ -115,9 +115,9 @@ namespace Secs
 				return this;
 			}
 
-			public EcsFilterMask End()
+			public EcsMatcher End()
 			{
-				return new EcsFilterMask(_includeComponentTypes, _excludeComponentTypes);
+				return new EcsMatcher(_includeComponentTypes, _excludeComponentTypes);
 			}
 		}
 #endregion

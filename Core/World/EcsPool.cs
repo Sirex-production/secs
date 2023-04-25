@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Secs
@@ -24,16 +25,18 @@ namespace Secs
 
 		private void OnEntityDeleted(int entityId)
 		{
-			if (HasComponent(entityId))
-				DelComponent(entityId);
+			if (!HasComponent(entityId))
+				return;
+				
+			_componentsBuffer[entityId] = default;
+			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void GrowBuffer(int minSize)
 		{
 			int resizeSize = Mathf.Max(_componentsBuffer.Length * 2, minSize);
 			Array.Resize(ref _componentsBuffer, resizeSize);
-			
-			EcsLogger.HeapAlloc<T[]>(resizeSize);
 		}
 
 		public ref T GetComponent(in int entityId)
@@ -77,6 +80,7 @@ namespace Secs
 			_world.RegisterComponentDeletedOperation<T>(entityId);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool HasComponent(in int entityId)
 		{
 			return _world.GetEntityComponentsTypeMask(entityId).ContainsType<T>();

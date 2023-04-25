@@ -51,8 +51,6 @@ namespace Secs
 			for(int i = 0; i < _bitArrayMask.Length; i++) 
 				createdBitArray[i] = _bitArrayMask[i];
 
-			EcsLogger.HeapAlloc<BitArray>(targetLength);
-			
 			_bitArrayMask = createdBitArray;
 		}
 	}

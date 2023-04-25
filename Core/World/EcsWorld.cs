@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
@@ -8,17 +8,17 @@ namespace Secs
 	{
 		private int _lastEntityId = -1;
 
+		internal readonly EcsConfig config;
+		
 		private readonly HashSet<int> _aliveEntities;
 		private readonly Stack<int> _deadEntities;
-
+		
 		private readonly List<EcsEntityUpdateOperation> _entityUpdateOperations;
 
 		private readonly Dictionary<int, EcsTypeMask> _entitiesComponents;
 		private readonly Dictionary<int, object> _pools;
-		private readonly Dictionary<EcsFilterMask, EcsFilter> _filters;
-		
-		internal readonly EcsConfig config;
-		
+		private readonly Dictionary<EcsMatcher, EcsFilter> _filters;
+
 		internal event Action<int> OnEntityDeleted;
 		internal event Action<int, Type> OnComponentAddedToEntity;
 		internal event Action<int, Type> OnComponentDeletedFromEntity;
@@ -36,19 +36,22 @@ namespace Secs
 
 			_entitiesComponents = new Dictionary<int, EcsTypeMask>(config.world.initialAllocatedEntities);
 			_pools = new Dictionary<int, object>(config.world.initialAllocatedPools);
-			_filters = new Dictionary<EcsFilterMask, EcsFilter>(config.world.initialAllocatedFilters);
+			_filters = new Dictionary<EcsMatcher, EcsFilter>(config.world.initialAllocatedFilters);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool IsEntityDead(int entityId)
 		{
 			return _deadEntities.Contains(entityId);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal EcsTypeMask GetEntityComponentsTypeMask(in int entityId)
 		{
 			return _entitiesComponents[entityId];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RegisterComponentAddedOperation<T>(in int entityId) where T : struct
 		{
 			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
@@ -59,11 +62,12 @@ namespace Secs
 			});
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RegisterComponentDeletedOperation<T>(in int entityId) where T : struct
 		{
 			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
 			{
-				operationType = EcsEntityUpdateOperation.EcsEntityOperationType.ComponentAdded,
+				operationType = EcsEntityUpdateOperation.EcsEntityOperationType.ComponentDeleted,
 				entityId = entityId,
 				componentType = typeof(T)
 			});
@@ -122,7 +126,7 @@ namespace Secs
 				componentType = null
 			});
 		}
-
+		
 		public EcsPool<T> GetPool<T>() where T : struct
 		{
 			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
@@ -130,43 +134,22 @@ namespace Secs
 			if (_pools.ContainsKey(typeIndex))
 				return (EcsPool<T>)_pools[typeIndex];
 			
-			EcsLogger.HeapAlloc<EcsPool<T>>();
 			var pool = new EcsPool<T>(config.pool.initialAllocatedComponents, this); 
 			_pools.Add(typeIndex, pool);
 
 			return pool;
 		}
 
-		public ref T GetComponent<T>(in int entityId) where T : struct
+		public EcsFilter GetFilter(EcsMatcher ecsMatcher)
 		{
-			return ref GetPool<T>().GetComponent(entityId);
-		}
-		
-		public ref T AddComponent<T>(in int entityId) where T : struct
-		{
-			return ref GetPool<T>().AddComponent(entityId);
-		}
-		
-		public void DelComponent<T>(in int entityId) where T : struct
-		{
-			GetPool<T>().DelComponent(entityId);	
-		}
-
-		public bool HasComponent<T>(in int entityId) where T : struct
-		{
-			return GetPool<T>().HasComponent(entityId);	
-		}
-
-		public EcsFilter GetFilter(EcsFilterMask ecsFilterMask)
-		{
-			if(ecsFilterMask == null)
-				throw new ArgumentNullException(nameof(ecsFilterMask));
+			if(ecsMatcher == null)
+				throw new ArgumentNullException(nameof(ecsMatcher));
 			
-			if(_filters.ContainsKey(ecsFilterMask))
-				return _filters[ecsFilterMask];
+			if(_filters.ContainsKey(ecsMatcher))
+				return _filters[ecsMatcher];
 
-			var filter = new EcsFilter(this, ecsFilterMask);
-			_filters.Add(ecsFilterMask, filter);
+			var filter = new EcsFilter(this, ecsMatcher);
+			_filters.Add(ecsMatcher, filter);
 
 			return filter;
 		}

@@ -3,7 +3,7 @@
 SECS is a lightweight, C# engine-independent Entity Component System framework based on `structs`
 
 ## Entity
-Entity is an `int` ID that serves as a container for components. 
+Entity is an `int` ID that serves as a container for [components](#component). 
 ```csharp
 // Creating entity
 int entity = world.NewEntity();
@@ -12,6 +12,15 @@ int entity = world.NewEntity();
 ```csharp
 // Deleting entity
 world.DelEntity(entity);
+```
+
+## Component
+Container for holding data. Must be `struct`
+```csharp
+public struct PlayerCmp
+{
+    public float speed;
+}
 ```
 
 ## World
@@ -177,4 +186,47 @@ public sealed class PlayerGodSystem : IEcsInitSystem, IEcsRunSystem, IEcsDispose
 	}
 }
 ```
+
+# Setup
+
+## Unity example
+```csharp
+public sealed class EcsSetup : MonoBehaviour
+{
+	private EcsWorld _world;
+	private EcsSystems _updateSystems;
+	
+	private void Awake()
+	{
+            // Initialize world
+            _world = new EcsWorld();
+            // Initialize systems container
+            _updateSystems = new EcsSystems(_world);
+		
+            //Add systems
+            _updateSystems.Add(new SpawnPlayerSystem(_world))
+		          .Add(new ReceiveInputSystem(_world))
+		          .Add(new MovePlayerSystem(_world));
+	}
+	
+	private void Start()
+	{
+	    //Fire logic
+	    _updateSystems.FireInitSystems();
+	}
+	
+	private void Update()
+	{
+            //Fire logic
+            _updateSystems.FireRunSystems();
+	}
+	
+	private void OnDestroy()
+	{
+            //Fire logic
+            _updateSystems.FireDisposeSystems();
+	}
+}
+```
+
 

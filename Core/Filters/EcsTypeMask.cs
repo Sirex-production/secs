@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 
 namespace Secs
 {
@@ -45,7 +44,7 @@ namespace Secs
 
 		internal bool HasCommonTypesWith(EcsTypeMask otherTypeMask)
 		{
-			int longestMaskCount = Mathf.Max(_bitArray.Length, otherTypeMask._bitArray.Length);
+			int longestMaskCount = Math.Max(_bitArray.Length, otherTypeMask._bitArray.Length);
 
 			for(int i = 0; i < longestMaskCount; i++)
 			{
@@ -88,7 +87,7 @@ namespace Secs
 				return false;
 			
 			var otherBitMask = other._bitArray;
-			int longestMaskLength = Mathf.Max(_bitArray.Length, otherBitMask.Length);
+			int longestMaskLength = Math.Max(_bitArray.Length, otherBitMask.Length);
 
 			for(int i = 0; i < longestMaskLength; i++)
 				if(_bitArray[i] != otherBitMask[i])

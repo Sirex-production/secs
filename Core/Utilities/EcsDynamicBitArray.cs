@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using System;
+using System.Collections;
 
 namespace Secs
 {
@@ -45,7 +45,7 @@ namespace Secs
 			if(minimalLength < currentLength)
 				return;
 
-			int targetLength = Mathf.Max(minimalLength, currentLength * 2);
+			int targetLength = Math.Max(minimalLength, currentLength * 2);
 			var createdBitArray = new BitArray(targetLength);
 
 			for(int i = 0; i < _bitArrayMask.Length; i++) 

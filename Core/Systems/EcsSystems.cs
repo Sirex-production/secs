@@ -1,33 +1,30 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using Unity.Plastic.Newtonsoft.Json.Serialization;
 
 namespace Secs
 {
 	public sealed class EcsSystems
 	{
 		private readonly EcsWorld _world;
-		private readonly List<IEcsInitSystem> _initSystems;
-		private readonly List<IEcsRunSystem> _runSystems;
-		private readonly List<IEcsDisposeSystem> _disposeSystems;
+		private event Action OnInitSystemsFired; 
+		private event Action OnRunSystemsFired; 
+		private event Action OnDisposeSystemsFired;
 
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
-			_initSystems = new List<IEcsInitSystem>();
-			_runSystems = new List<IEcsRunSystem>();
-			_disposeSystems = new List<IEcsDisposeSystem>();
 		}
 
 		public EcsSystems Add(IEcsSystem ecsSystem)
 		{
 			if(ecsSystem is IEcsInitSystem initSystem) 
-				_initSystems.Add(initSystem);
+				OnInitSystemsFired += initSystem.OnInit;
 
 			if(ecsSystem is IEcsRunSystem runSystem) 
-				_runSystems.Add(runSystem);
+				OnRunSystemsFired += runSystem.OnRun;
 			
-			if(ecsSystem is IEcsDisposeSystem destroySystem)
-				_disposeSystems.Add(destroySystem);
+			if(ecsSystem is IEcsDisposeSystem disposeSystem)
+				OnDisposeSystemsFired += disposeSystem.OnDispose;
 
 			return this;
 		}
@@ -35,27 +32,21 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireInitSystems()
 		{
-			foreach (var initSystem in _initSystems) 
-				initSystem.OnInit();
-			
+			OnInitSystemsFired?.Invoke();
 			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
-			foreach (var runSystem in _runSystems) 
-				runSystem.OnRun();
-			
+			OnRunSystemsFired?.Invoke();
 			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
-			foreach (var disposeSystem in _disposeSystems) 
-				disposeSystem.OnDispose();
-			
+			OnDisposeSystemsFired?.Invoke();
 			_world.UpdateFilters();
 		}
 	}

@@ -22,11 +22,5 @@ namespace Secs
             
             return list;
         }
-        
-        
-        internal ReadOnlySpan<Type> GetComponentsAsSpan()
-        {
-            return new ReadOnlySpan<Type>(GetComponents().ToArray());;
-        }
     }
 }

@@ -1,30 +1,33 @@
-﻿using System.Runtime.CompilerServices;
-using Unity.Plastic.Newtonsoft.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
 	public sealed class EcsSystems
 	{
 		private readonly EcsWorld _world;
-		private event Action OnInitSystemsFired; 
-		private event Action OnRunSystemsFired; 
-		private event Action OnDisposeSystemsFired;
+		private readonly List<IEcsInitSystem> _initSystems;
+		private readonly List<IEcsRunSystem> _runSystems;
+		private readonly List<IEcsDisposeSystem> _disposeSystems;
 
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
+			_initSystems = new List<IEcsInitSystem>();
+			_runSystems = new List<IEcsRunSystem>();
+			_disposeSystems = new List<IEcsDisposeSystem>();
 		}
 
 		public EcsSystems Add(IEcsSystem ecsSystem)
 		{
 			if(ecsSystem is IEcsInitSystem initSystem) 
-				OnInitSystemsFired += initSystem.OnInit;
+				_initSystems.Add(initSystem);
 
 			if(ecsSystem is IEcsRunSystem runSystem) 
-				OnRunSystemsFired += runSystem.OnRun;
+				_runSystems.Add(runSystem);
 			
-			if(ecsSystem is IEcsDisposeSystem disposeSystem)
-				OnDisposeSystemsFired += disposeSystem.OnDispose;
+			if(ecsSystem is IEcsDisposeSystem destroySystem)
+				_disposeSystems.Add(destroySystem);
 
 			return this;
 		}
@@ -32,22 +35,31 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireInitSystems()
 		{
-			OnInitSystemsFired?.Invoke();
-			_world.UpdateFilters();
+			foreach(var initSystem in _initSystems)
+			{
+				initSystem.OnInit();
+				_world.UpdateFilters();
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
-			OnRunSystemsFired?.Invoke();
-			_world.UpdateFilters();
+			foreach(var runSystem in _runSystems)
+			{
+				runSystem.OnRun();
+				_world.UpdateFilters();
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
-			OnDisposeSystemsFired?.Invoke();
-			_world.UpdateFilters();
+			foreach(var disposeSystem in _disposeSystems)
+			{
+				disposeSystem.OnDispose();
+				_world.UpdateFilters();
+			}
 		}
 	}
 }

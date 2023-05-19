@@ -35,28 +35,31 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireInitSystems()
 		{
-			foreach (var initSystem in _initSystems) 
+			foreach(var initSystem in _initSystems)
+			{
 				initSystem.OnInit();
-			
-			_world.UpdateFilters();
+				_world.UpdateFilters();
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
-			foreach (var runSystem in _runSystems) 
+			foreach(var runSystem in _runSystems)
+			{
 				runSystem.OnRun();
-			
-			_world.UpdateFilters();
+				_world.UpdateFilters();
+			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
-			foreach (var disposeSystem in _disposeSystems) 
+			foreach(var disposeSystem in _disposeSystems)
+			{
 				disposeSystem.OnDispose();
-			
-			_world.UpdateFilters();
+				_world.UpdateFilters();
+			}
 		}
 	}
 }

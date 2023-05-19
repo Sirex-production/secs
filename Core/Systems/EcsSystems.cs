@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public sealed class EcsSystems
+	public sealed partial class EcsSystems
 	{
 		private readonly EcsWorld _world;
 		private readonly List<IEcsInitSystem> _initSystems;

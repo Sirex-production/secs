@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public sealed class EcsWorld
+	public sealed partial class EcsWorld
 	{
 		private int _lastEntityId = -1;
 

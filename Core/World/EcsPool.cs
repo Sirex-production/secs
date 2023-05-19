@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public sealed class EcsPool<T> : IDisposable where T : struct
+	public sealed partial class EcsPool<T> : IDisposable where T : struct, IEcsComponent
 	{
 		private readonly EcsWorld _world;
 		
@@ -37,7 +37,7 @@ namespace Secs
 			int resizeSize = Math.Max(_componentsBuffer.Length * 2, minSize);
 			Array.Resize(ref _componentsBuffer, resizeSize);
 		}
-
+		
 		public ref T GetComponent(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))

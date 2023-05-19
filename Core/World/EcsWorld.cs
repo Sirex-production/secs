@@ -19,6 +19,7 @@ namespace Secs
 		private readonly Dictionary<int, object> _pools;
 		private readonly Dictionary<EcsMatcher, EcsFilter> _filters;
 
+		internal event Action<int> OnEntityCreated;
 		internal event Action<int> OnEntityDeleted;
 		internal event Action<int, Type> OnComponentAddedToEntity;
 		internal event Action<int, Type> OnComponentDeletedFromEntity;
@@ -52,7 +53,7 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void RegisterComponentAddedOperation<T>(in int entityId) where T : struct
+		internal void RegisterComponentAddedOperation<T>(in int entityId) where T : struct, IEcsComponent
 		{
 			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
 			{
@@ -63,7 +64,7 @@ namespace Secs
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void RegisterComponentDeletedOperation<T>(in int entityId) where T : struct
+		internal void RegisterComponentDeletedOperation<T>(in int entityId) where T : struct, IEcsComponent
 		{
 			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
 			{
@@ -108,7 +109,7 @@ namespace Secs
 			
 			_aliveEntities.Add(_lastEntityId);
 			_entitiesComponents.Add(_lastEntityId, new EcsTypeMask());
-
+			OnEntityCreated?.Invoke(_lastEntityId);
 			return _lastEntityId;
 		}
 
@@ -127,7 +128,7 @@ namespace Secs
 			});
 		}
 		
-		public EcsPool<T> GetPool<T>() where T : struct
+		public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
 		{
 			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
 

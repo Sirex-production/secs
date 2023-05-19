@@ -2,7 +2,7 @@
 
 namespace Secs
 {
-	public sealed class EcsTypeMask
+	public sealed partial class EcsTypeMask
 	{
 		private EcsDynamicBitArray _bitArray;
 		

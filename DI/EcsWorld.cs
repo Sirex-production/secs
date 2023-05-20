@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Numerics;
 using System.Reflection;
 
 namespace Secs
@@ -17,7 +16,7 @@ namespace Secs
 			if (_pools.ContainsKey(typeIndex))
 				return _pools[typeIndex];
 
-			var poolType = Type.GetType("Secs.EcsPool`1");
+			var poolType = typeof(EcsPool<>);
 			var poolTypeWithGenericParameter = poolType.MakeGenericType(componentType);
 			var poolInstance = Activator.CreateInstance(poolTypeWithGenericParameter, config.pool.initialAllocatedComponents, this);
 			
@@ -26,19 +25,20 @@ namespace Secs
 			return poolInstance;
 		}
 		
-		private void InjectPools(object injectionTarget)
+		private void InjectWorld(object injectionTarget)
 		{
 			var fieldBindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-			var injectPoolFields = injectionTarget.GetType()
+			var injectFilterFields = injectionTarget.GetType()
 				.GetFields(fieldBindings)
-				.Where(fieldInfo => fieldInfo.IsDefined(typeof(InjectEcsPoolAttribute)) && fieldInfo.FieldType == typeof(EcsPool<>));
+				.Where
+				(
+					fieldInfo => fieldInfo.IsDefined(typeof(EcsWorldInject)) && 
+								fieldInfo.FieldType == typeof(EcsWorld)
+				);
 
-			foreach(var poolFieldInfo in injectPoolFields)
+			foreach(var worldFiledInfo in injectFilterFields)
 			{
-				var componentType = poolFieldInfo.GetCustomAttribute<InjectEcsPoolAttribute>().componentType;
-				var ecsPool = GetPoolAsObject(componentType);
-				
-				poolFieldInfo.SetValue(injectionTarget, ecsPool);
+				worldFiledInfo.SetValue(injectionTarget, this);
 			}
 		}
 
@@ -50,18 +50,18 @@ namespace Secs
 				.Where
 				(
 					fieldInfo => fieldInfo.FieldType == typeof(EcsFilter) && 
-								fieldInfo.IsDefined(typeof(InjectEcsFilterAttribute)) &&
-								fieldInfo.IsDefined(typeof(Inc))
+								fieldInfo.IsDefined(typeof(EcsFilterInjectAttribute)) &&
+								fieldInfo.IsDefined(typeof(EcsIncludeAttribute))
 				);
 
 			foreach(var filterFieldInfo in injectFilterFields)
 			{
-				var includeTypes = filterFieldInfo.GetCustomAttribute<Inc>().includeTypes;
+				var includeTypes = filterFieldInfo.GetCustomAttribute<EcsIncludeAttribute>().includeTypes;
 				EcsFilter ecsFilter;
 				
-				if(filterFieldInfo.IsDefined(typeof(Exc)))
+				if(filterFieldInfo.IsDefined(typeof(EcsExcludeAttribute)))
 				{
-					var excludeTypes = filterFieldInfo.GetCustomAttribute<Exc>().excludeTypes;
+					var excludeTypes = filterFieldInfo.GetCustomAttribute<EcsExcludeAttribute>().excludeTypes;
 					var ecsMatcher = EcsMatcher
 						.Include(includeTypes)
 						.Exclude(excludeTypes)
@@ -77,15 +77,37 @@ namespace Secs
 					
 					ecsFilter = GetFilter(ecsMatcher);
 				}
-				
+
 				filterFieldInfo.SetValue(injectionTarget, ecsFilter);
 			}
 		}
-		
+
+		private void InjectPools(object injectionTarget)
+		{
+			var fieldBindings = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+			var injectPoolFields = injectionTarget.GetType()
+				.GetFields(fieldBindings)
+				.Where
+				(
+					fieldInfo => fieldInfo.IsDefined(typeof(EcsPoolInjectAttribute)) &&
+								fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(EcsPool<>) 
+				);
+
+			foreach(var poolFieldInfo in injectPoolFields)
+			{
+				var componentType = poolFieldInfo.FieldType.GetGenericArguments()[0];
+				var ecsPool = GetPoolAsObject(componentType);
+				
+				
+				poolFieldInfo.SetValue(injectionTarget, ecsPool);
+			}
+		}
+
 		internal void Inject(object injectionTarget)
 		{
-			InjectPools(injectionTarget);
+			InjectWorld(injectionTarget);
 			InjectFilters(injectionTarget);
+			InjectPools(injectionTarget);
 		}
 	}
 }

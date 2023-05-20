@@ -4,6 +4,11 @@ DI extension allows you to inject ECS types like
 [pools](../README.md#pool), [filters](../README.md#filter) and [world](../README.md#world) into your system
 and reduce huge amount of code.
 
+## Content
+
+- [Setup](#setup)
+- [Detailed explanation on injecting `EcsFilter`](#detailed-explanation-on-injecting-ecsfilter)
+
 ## Setup
 
 1. Make sure you have DI extension installed by checking if you have `DI/` folder inside `secs/`
@@ -21,7 +26,8 @@ _updateSystems.Add(new MovePlayerSystem());
 _updateSystems.Inject();
 ```
 
-Also notice that `Inject()` method should be called after all systems were added
+Also notice that `Inject()` method should be called after all systems were added 
+
 3. Add corresponding attributes inside your systems to mark injection fields:
    - `[EcsWorldInject]` - marks `EcsWorld` fields that will be injected
    - `[EcsPoolInject]` - marks `EcsPool<TComponent>` fields that will be injected

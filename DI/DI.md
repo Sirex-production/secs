@@ -29,25 +29,22 @@ _updateSystems.Inject();
 Also notice that `Inject()` method should be called after all systems were added 
 
 3. Add corresponding attributes inside your systems to mark injection fields:
-   - `[EcsWorldInject]` - marks `EcsWorld` fields that will be injected
-   - `[EcsPoolInject]` - marks `EcsPool<TComponent>` fields that will be injected
-   - `[EcsFilterInject]`, `[EcsInclude(typeof(Cmp1), typeof(Cmp2))]`, `[EcsExclude(typeof(Cmp1), typeof(Cmp2))]` - marks `EcsFilter` fields that will be injected
-
+   - `[EcsInject]` - marks `EcsPool<TComponent>`, `EcsWorld` fields that will be injected
+   - `[EcsInject(typeof(CmpX))]` and `[AndExclude(typeof(CmpY))]` - marks and defines filtering rules for `EcsFilter` fields that will be injected. Take a look on [Detailed explanation on injecting **EcsFilter**](#detailed-explanation-on-injecting-ecsfilter) for more info
 4. That's it! Good job!
 
 ### Example:
 ```csharp
 public sealed class MovePlayerSystem : IEcsRunSystem
 {
-    [EcsWorldInject]
+    [EcsInject]
     private readonly EcsWorld _world;
     
-    [EcsPoolInject]
+    [EcsInject]
     private readonly EcsPool<PlayerComponent> _playerComponentPool;
 
-    [EcsFilterInject]
-    [EcsInclude(typeof(PlayerComponent), typeof(TransformModel))]
-    [EcsExclude(typeof(IsDeadTag))]
+    [EcsInject(typeof(PlayerComponent), typeof(TransformModel))]
+    [AndExclude(typeof(IsDeadTag))]
     private readonly EcsFilter _playerFilter;
 
     public void OnRun()
@@ -59,17 +56,15 @@ public sealed class MovePlayerSystem : IEcsRunSystem
 
 ### Detailed explanation on injecting `EcsFilter`
 
-1. First mark filter that you want to inject with `[EcsFilterInject]` attribute. In other case injection will be ignored
-2. Add `[EcsInclude(typeof(Cmp1), typeof(Cmp2), typeof(CmpN))]` attribute where `Cmp1`, `Cmp2`, `CmpN` types that you want to **include**. This attribute is also required
-3. Optionally add `[EcsExclude(typeof(Cmp1), typeof(Cmp2), typeof(CmpN))]` attribute where `Cmp1`, `Cmp2`, `CmpN` types that you want to **exclude**.
+1. Add `[EcsInject(typeof(Cmp1), typeof(Cmp2), typeof(CmpN))]` attribute where `Cmp1`, `Cmp2`, `CmpN` types that you want to **include** to the filter. This attribute is required
+2. Optionally add `[EcsExclude(typeof(Cmp1), typeof(Cmp2), typeof(CmpN))]` attribute where `Cmp1`, `Cmp2`, `CmpN` types that you want to **exclude**.
 
 #### Example
 ```csharp
 public sealed class MovePlayerSystem : IEcsRunSystem
 {
-    [EcsFilterInject]
-    [EcsInclude(typeof(PlayerComponent), typeof(TransformModel))]
-    [EcsExclude(typeof(IsDeadTag))]
+    [EcsInject(typeof(PlayerComponent), typeof(TransformModel))]
+    [AndExclude(typeof(IsDeadTag))]
     private readonly EcsFilter _playerFilter;
 
     public void OnRun()

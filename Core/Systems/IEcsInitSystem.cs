@@ -2,6 +2,6 @@
 {
 	public interface IEcsInitSystem : IEcsSystem
 	{
-		public void OnOnInit();
+		public void OnInit();
 	}
 }

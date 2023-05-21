@@ -23,10 +23,10 @@ namespace Secs
 			_allSystems.Add(ecsSystem);
 
 			if(ecsSystem is IEcsInitSystem initSystem)
-				OnInitFired += initSystem.OnOnInit;
+				OnInitFired += initSystem.OnInit;
 
 			if(ecsSystem is IEcsRunSystem runSystem)
-				OnRunFired += runSystem.OnOnRun;
+				OnRunFired += runSystem.OnRun;
 
 			if(ecsSystem is IEcsDisposeSystem disposeSystems)
 				OnDisposeFired += disposeSystems.OnDispose;

@@ -2,6 +2,6 @@
 {
 	public interface IEcsRunSystem : IEcsSystem
 	{
-		public void OnRun();
+		public void OnOnRun();
 	}
 }

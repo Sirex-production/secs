@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Secs
@@ -6,28 +7,29 @@ namespace Secs
 	public sealed partial class EcsSystems
 	{
 		private readonly EcsWorld _world;
-		private readonly List<IEcsInitSystem> _initSystems;
-		private readonly List<IEcsRunSystem> _runSystems;
-		private readonly List<IEcsDisposeSystem> _disposeSystems;
+		private readonly List<IEcsSystem> _allSystems = new();
 
+		private event Action OnInitFired;
+		private event Action OnRunFired;
+		private event Action OnDisposeFired;
+		
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
-			_initSystems = new List<IEcsInitSystem>();
-			_runSystems = new List<IEcsRunSystem>();
-			_disposeSystems = new List<IEcsDisposeSystem>();
 		}
 
 		public EcsSystems Add(IEcsSystem ecsSystem)
 		{
-			if(ecsSystem is IEcsInitSystem initSystem) 
-				_initSystems.Add(initSystem);
+			_allSystems.Add(ecsSystem);
 
-			if(ecsSystem is IEcsRunSystem runSystem) 
-				_runSystems.Add(runSystem);
-			
-			if(ecsSystem is IEcsDisposeSystem destroySystem)
-				_disposeSystems.Add(destroySystem);
+			if(ecsSystem is IEcsInitSystem initSystem)
+				OnInitFired += initSystem.OnOnInit;
+
+			if(ecsSystem is IEcsRunSystem runSystem)
+				OnRunFired += runSystem.OnOnRun;
+
+			if(ecsSystem is IEcsDisposeSystem disposeSystems)
+				OnDisposeFired += disposeSystems.OnOnDispose;
 
 			return this;
 		}
@@ -35,31 +37,22 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireInitSystems()
 		{
-			foreach(var initSystem in _initSystems)
-			{
-				initSystem.OnInit();
-				_world.UpdateFilters();
-			}
+			OnInitFired?.Invoke();
+			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
-			foreach(var runSystem in _runSystems)
-			{
-				runSystem.OnRun();
-				_world.UpdateFilters();
-			}
+			OnRunFired?.Invoke();
+			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
-			foreach(var disposeSystem in _disposeSystems)
-			{
-				disposeSystem.OnDispose();
-				_world.UpdateFilters();
-			}
+			OnDisposeFired?.Invoke();
+			_world.UpdateFilters();
 		}
 	}
 }

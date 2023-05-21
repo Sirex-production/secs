@@ -8,6 +8,9 @@ namespace Secs
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public sealed class EcsInjectAttribute : Attribute
 	{
+		/// <summary>
+		/// EcsFilter included types
+		/// </summary>
 		public readonly Type[] includeTypes;
 
 		/// <summary>
@@ -32,6 +35,9 @@ namespace Secs
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 	public sealed class AndExclude : Attribute
 	{
+		/// <summary>
+		/// EcsFilter excluded types
+		/// </summary>
 		public readonly Type[] excludeTypes;
 		
 		/// <summary>

@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Secs
+﻿namespace Secs
 {
 	public sealed partial class EcsSystems
 	{
@@ -9,12 +7,7 @@ namespace Secs
 		/// </summary>
 		public void Inject()
 		{
-			var allSystems = _initSystems
-				.Cast<IEcsSystem>()
-				.Concat(_runSystems)
-				.Concat(_disposeSystems);
-			
-			foreach(var ecsSystem in allSystems) 
+			foreach(var ecsSystem in _allSystems) 
 				_world.Inject(ecsSystem);
 		}
 	}

@@ -29,7 +29,7 @@ namespace Secs
 				OnRunFired += runSystem.OnOnRun;
 
 			if(ecsSystem is IEcsDisposeSystem disposeSystems)
-				OnDisposeFired += disposeSystems.OnOnDispose;
+				OnDisposeFired += disposeSystems.OnDispose;
 
 			return this;
 		}

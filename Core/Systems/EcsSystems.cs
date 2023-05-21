@@ -23,14 +23,23 @@ namespace Secs
 			_allSystems.Add(ecsSystem);
 
 			if(ecsSystem is IEcsInitSystem initSystem)
+			{
 				OnInitFired += initSystem.OnInit;
+				OnInitFired += _world.UpdateFilters;
+			}
 
 			if(ecsSystem is IEcsRunSystem runSystem)
+			{
 				OnRunFired += runSystem.OnRun;
+				OnRunFired += _world.UpdateFilters;
+			}
 
 			if(ecsSystem is IEcsDisposeSystem disposeSystems)
+			{
 				OnDisposeFired += disposeSystems.OnDispose;
-
+				OnDisposeFired += _world.UpdateFilters;
+			}
+			
 			return this;
 		}
 
@@ -38,21 +47,18 @@ namespace Secs
 		public void FireInitSystems()
 		{
 			OnInitFired?.Invoke();
-			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireRunSystems()
 		{
 			OnRunFired?.Invoke();
-			_world.UpdateFilters();
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void FireDisposeSystems()
 		{
 			OnDisposeFired?.Invoke();
-			_world.UpdateFilters();
 		}
 	}
 }

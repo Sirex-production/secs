@@ -8,6 +8,7 @@ namespace Secs
            return (T) GetPool<T>().GetItem(entity);
         }
         
+        
         internal void ReplaceItem<T>(int entity, T newValue) where T : struct, IEcsComponent
         {
             GetPool<T>().ReplaceComponent(entity, newValue);
@@ -21,6 +22,11 @@ namespace Secs
         internal void DeleteComponent<T>(int i) where T : struct, IEcsComponent
         {
             GetPool<T>().DelComponent(i);
+        }
+
+        internal bool IsSame<T>(int i, ref object d) where T : struct, IEcsComponent
+        {
+            return Equals(GetPool<T>().GetComponent(i), d);
         }
     }
 }

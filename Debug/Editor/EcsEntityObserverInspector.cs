@@ -8,13 +8,13 @@ using System.Runtime.CompilerServices;
 using Secs.Debug;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Secs 
 {
     [CustomEditor(typeof(EcsEntityObserver))]
     public sealed class EcsEntityObserverInspector : Editor
     {
+        private const float REFRESH_RATE = 0.2f;
         private static int _maximumNumberOfComponents = 32;
         
         private Type[] _cashedComponentTypes = new Type[_maximumNumberOfComponents];
@@ -30,7 +30,8 @@ namespace Secs
         private int _popupIndex = 0;
         private string[] _popupOptions;
         private object _popupObject;
-        
+
+        private float _refresh_timer = 0f;
         private void Awake()
         {
             var list = new List<string>();
@@ -67,6 +68,9 @@ namespace Secs
             
             var cmpType = _popupStringToTypeDiction[_popupOptions[_popupIndex]];
             _popupObject = Activator.CreateInstance(cmpType);
+
+            _refresh_timer = 0f;
+            EditorApplication.update += OnUpdate;
         }
 
         private void OnDisable()
@@ -75,8 +79,45 @@ namespace Secs
             _entityId = -1;
             _ecsWorld = null;
             _popupObject = null;
+            
+            EditorApplication.update -= OnUpdate;
         }
-        
+
+        private void OnUpdate()
+        {
+            _refresh_timer += Time.deltaTime;
+            
+            if(_refresh_timer < REFRESH_RATE)
+                return;
+            
+            _refresh_timer = 0f;
+
+            var shouldRepaint = false;
+            for (int i = 0; i < _numberOfComponents; i++)
+            {
+                ref var componentValue = ref _cashedComponents[i];
+
+                var result = _ecsWorld
+                    .GetType()
+                    .GetMethod(nameof(EcsWorld.IsSame),BindingFlags.NonPublic | BindingFlags.Instance)?
+                    .MakeGenericMethod(_cashedComponentTypes[i])
+                    .Invoke(_ecsWorld, new object[] { _entityId, componentValue});
+                
+                if (result != null && (shouldRepaint =! (bool)result))
+                {
+                    var typeValue = _ecsWorld
+                        .GetType()
+                        .GetMethod(nameof(EcsWorld.GetItem),BindingFlags.NonPublic | BindingFlags.Instance)?
+                        .MakeGenericMethod(_cashedComponentTypes[i])
+                        .Invoke(_ecsWorld, new object[] { _entityId,});
+
+                    _cashedComponents[i] = typeValue;
+                }
+            }
+            
+            if(shouldRepaint)
+                Repaint();
+        }
         public override void OnInspectorGUI()
         {
             if (_entityObserver == null) 
@@ -106,6 +147,7 @@ namespace Secs
                 }
             }
         }
+ 
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitComponents()
@@ -119,7 +161,7 @@ namespace Secs
                     .GetType()
                     .GetMethod(nameof(EcsWorld.GetItem),BindingFlags.NonPublic | BindingFlags.Instance)?
                     .MakeGenericMethod(type)
-                    .Invoke(_ecsWorld, new object[] { _entityId });
+                    .Invoke(_ecsWorld, new object[] { _entityId,});
                 
                 if (typeValue == null) 
                     continue;

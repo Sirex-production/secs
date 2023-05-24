@@ -15,9 +15,9 @@ world.DelEntity(entity);
 ```
 
 ## Component
-Container for holding data. Must be `struct`
+Container for holding data. Must be `struct` that implements `IEcsComponent` interface
 ```csharp
-public struct PlayerCmp
+public struct PlayerCmp : IEcsComponent
 {
     public float speed;
 }

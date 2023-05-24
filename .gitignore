@@ -34,6 +34,9 @@ ExportedObj/
 *.opendb
 *.VC.db
 
+#No Unity meta files needed in non Unity environment
+*.meta
+
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta

@@ -9,14 +9,42 @@ namespace Secs.Debug
     public sealed class EcsSystemsObserverInspector: Editor
     {
         private EcsSystemsObserver _ecsSystemsObserver = null;
+        private readonly Dictionary<EcsUnitSystemsObserver, Dictionary<Type, List<string>>> _cashedSystems = new ();
+
         private void OnEnable()
         {
             _ecsSystemsObserver = this.target as EcsSystemsObserver;
+            
+            if(_ecsSystemsObserver == null)
+                return;
+
+            foreach (var unitSystemsObserver in _ecsSystemsObserver.ecsUnitSystemsObservers)
+            {
+                _cashedSystems.Add(unitSystemsObserver, new Dictionary<Type, List<string>>()
+                {
+                    {typeof(IEcsInitSystem),new List<string>()},
+                    {typeof(IEcsRunSystem),new List<string>()},
+                    {typeof(IEcsDisposeSystem),new List<string>()}
+                });
+ 
+                foreach (var sys in unitSystemsObserver.allSystems)
+                {
+                    if (sys is IEcsInitSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsInitSystem)].Add(sys.GetType().Name);
+                    
+                    if (sys is IEcsRunSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsRunSystem)].Add(sys.GetType().Name);
+
+                    if (sys is IEcsDisposeSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsDisposeSystem)].Add(sys.GetType().Name);
+                } 
+            }
         }
 
         private void OnDisable()
         {
             _ecsSystemsObserver = null;
+            _cashedSystems.Clear();
         }
 
         public override void OnInspectorGUI()
@@ -26,32 +54,28 @@ namespace Secs.Debug
 
              if (GUILayout.Button("New Entity"))
                  _ecsSystemsObserver.world.NewEntity();
-             
-             foreach (var sys in _ecsSystemsObserver.ecsUnitSystemsObservers)
+
+             var index = 0;
+             foreach (var cashedSystems in _cashedSystems)
              {
-                 using (new EditorGUILayout.VerticalScope("box"))
+                 EditorGUI.indentLevel = 0;
+                 EditorGUILayout.LabelField($"Systems : {index++}");
+                 
+                 using (new EditorGUILayout.VerticalScope())
                  {
-                     EditorGUILayout.LabelField("IEcsInit systems:");
-                     using (new EditorGUILayout.VerticalScope("box")){
-                         foreach (var initSys in sys.initSystems)
+                     foreach (var unitSys in cashedSystems.Value)
+                     {
+                         EditorGUI.indentLevel = 1;
+                         
+                         using (new EditorGUILayout.VerticalScope("box"))
                          {
-                             EditorGUILayout.LabelField(initSys.GetType().Name);
-                         }
-                     }
-                     
-                     EditorGUILayout.LabelField("IEcsRun systems:");
-                     using (new EditorGUILayout.VerticalScope("box")){
-                         foreach (var runSys in sys.runSystems)
-                         {
-                             EditorGUILayout.LabelField(runSys.GetType().Name);
-                         }
-                     }
-                     
-                     EditorGUILayout.LabelField("IEcsDispose systems:");
-                     using (new EditorGUILayout.VerticalScope("box")){
-                         foreach (var disposeSys in sys.disposeSystems)
-                         {
-                             EditorGUILayout.LabelField(disposeSys.GetType().Name);
+                             EditorGUILayout.LabelField(unitSys.Key.Name);
+
+                             foreach (var sys in unitSys.Value)
+                             {
+                                 EditorGUI.indentLevel = 4;
+                                 EditorGUILayout.LabelField(sys);
+                             }
                          }
                      }
                  }

@@ -9,7 +9,7 @@ using Secs.Debug;
 using UnityEditor;
 using UnityEngine;
 
-namespace Secs 
+namespace Secs.Debug 
 {
     [CustomEditor(typeof(EcsEntityObserver))]
     public sealed class EcsEntityObserverInspector : Editor

@@ -8,7 +8,7 @@ namespace Secs.Debug
         private EcsWorld _ecsWorld;
         private List<EcsSystems> _systems;
         private GameObject _worldGameObject;
-        private readonly Dictionary<int, EcsEntityObserver> _entityObservers = new Dictionary<int, EcsEntityObserver>();
+        private readonly Dictionary<int, EcsEntityObserver> _entityObservers = new();
 
         public EcsProfilerEntityViewSys(EcsWorld world,EcsSystems ecsSys)
         {
@@ -43,9 +43,7 @@ namespace Secs.Debug
             {
                 worldObserver.ecsUnitSystemsObservers.Add(new EcsUnitSystemsObserver()
                 {
-                    initSystems = sys.InitSystems,
-                    runSystems =  sys.RunSystems,
-                    disposeSystems = sys.DisposeSystems
+                    allSystems = sys.AllSystems,
                 });
             }
             

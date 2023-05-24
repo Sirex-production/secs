@@ -13,8 +13,6 @@ namespace Secs.Debug
 
     internal struct EcsUnitSystemsObserver
     {
-        internal List<IEcsInitSystem> initSystems;
-        internal List<IEcsRunSystem> runSystems;
-        internal List<IEcsDisposeSystem> disposeSystems;
+        internal List<IEcsSystem> allSystems;
     }
 }

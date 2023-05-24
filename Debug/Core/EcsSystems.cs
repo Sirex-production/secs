@@ -6,10 +6,8 @@ namespace Secs
     public sealed partial class EcsSystems
     {
         private EcsProfilerEntityViewSys _profiler;
-        internal List<IEcsInitSystem> InitSystems => _initSystems;
-        internal List<IEcsRunSystem> RunSystems => _runSystems;
-        internal List<IEcsDisposeSystem> DisposeSystems => _disposeSystems;
-        
+        internal List<IEcsSystem> AllSystems => _allSystems;
+
         public void AttachProfiler()
         {
             _profiler = new EcsProfilerEntityViewSys(_world, this);

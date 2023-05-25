@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Secs.UnityIntegration
+namespace Secs
 {
     public sealed class EcsEntityReference : MonoBehaviour
     {
@@ -13,18 +12,24 @@ namespace Secs.UnityIntegration
 
         public void Link(EcsWorld ecsWorld, int entityId)
         {
-            if (this._entityId != -1)
-                throw new ArgumentException("This entity reference is occupied by other entity");
+            if(_entityId != -1)
+            {
+                Debug.LogError("This entity reference is occupied by other entity");
+                return;
+            }
 
             _world = ecsWorld;
             _entityId = entityId;
         }
         
-        public void Unlink(EcsWorld ecsWorld, int entity)
+        public void Unlink()
         {
-            if (this._entityId == -1)
-                throw new ArgumentException("Link entity before unlinking it");
-            
+            if(_entityId == -1)
+            {
+                Debug.LogError("Link entity before unlinking it");
+                return;
+            }
+
             _world = null;
             _entityId = -1;
         }

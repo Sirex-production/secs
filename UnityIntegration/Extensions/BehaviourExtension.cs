@@ -1,26 +1,34 @@
-﻿using System;
-using Secs;
-using Secs.UnityIntegration;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Secs.UnityIntegration 
+namespace Secs
 {
-    public static class BehaviourExtension
+    public static class Extensions
     {
-        public static void Link(this GameObject linkedObject, EcsWorld world, int entityId)
+        public static void LinkEcsEntity(this Component component, EcsWorld world, int entityId)
+        {
+            if (!component.TryGetComponent(out EcsEntityReference reference))
+                reference = component.gameObject.AddComponent<EcsEntityReference>();
+            
+            reference.Link(world, entityId);
+        }
+        
+        public static void LinkEcsEntity(this GameObject linkedObject, EcsWorld world, int entityId)
         {
             if (!linkedObject.TryGetComponent(out EcsEntityReference reference))
                 reference = linkedObject.AddComponent<EcsEntityReference>();
             
-            reference.Link( world, entityId);
+            reference.Link(world, entityId);
         }
         
-        public static void UnLink(this GameObject linkedObject, EcsWorld world, int entityId)
+        public static void UnlinkEcsEntity(this GameObject linkedObject)
         {
-            if (!linkedObject.TryGetComponent(out EcsEntityReference reference))
-                throw new ArgumentException("The object must have Entity Reference before unlinking it");
-            
-            reference.Unlink( world, entityId);
+            if(!linkedObject.TryGetComponent(out EcsEntityReference reference))
+            {
+                Debug.LogError("The object must have Entity Reference before unlinking it");
+                return;
+            }
+
+            reference.Unlink();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿# Debug Profiler extension
 
-Debug Profiler previews[world](../README.md#world), [systems](../README.md#systems) and allows to see/modify entity's components[filters](../README.md#component)
+Debug Profiler previews [world](../README.md#world), [systems](../README.md#systems) and allows to see/modify entity's components[component](../README.md#component)
 
 ## Content
 
@@ -36,6 +36,7 @@ private void OnDestroy()
 ```
 
 Also notice that `AttachProfiler()` method should be called before spawning a new Entity!!!
+
 4. Now, after running the game you should see new Game Object (check: DontDestroyOnLoad) called Profiler that stores each world with its entities.
 5. Try to modify the entity, notice that the change directly affect the entity.
 

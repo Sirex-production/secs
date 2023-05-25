@@ -19,12 +19,23 @@ namespace Secs
             
             reference.Link(world, entityId);
         }
-        
+
+        public static void UnlinkEcsEntity(this Component component)
+        {
+            if(!component.TryGetComponent(out EcsEntityReference reference))
+            {
+                Debug.LogError($"Game object with name {component.gameObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
+                return;
+            }
+
+            reference.Unlink();
+        }
+
         public static void UnlinkEcsEntity(this GameObject linkedObject)
         {
             if(!linkedObject.TryGetComponent(out EcsEntityReference reference))
             {
-                Debug.LogError("The object must have Entity Reference before unlinking it");
+                Debug.LogError($"Game object with name {linkedObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
                 return;
             }
 

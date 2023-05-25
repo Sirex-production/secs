@@ -9,7 +9,7 @@ namespace Secs.Debug
     public sealed class EcsSystemsObserverInspector: Editor
     {
         private EcsSystemsObserver _ecsSystemsObserver = null;
-        private readonly Dictionary<EcsUnitSystemsObserver, Dictionary<Type, List<string>>> _cashedSystems = new ();
+        private readonly Dictionary<EcsSystems, Dictionary<Type, List<string>>> _cashedSystems = new ();
 
         private void OnEnable()
         {
@@ -17,28 +17,8 @@ namespace Secs.Debug
             
             if(_ecsSystemsObserver == null)
                 return;
-
-            foreach (var unitSystemsObserver in _ecsSystemsObserver.ecsUnitSystemsObservers)
-            {
-                _cashedSystems.Add(unitSystemsObserver, new Dictionary<Type, List<string>>()
-                {
-                    {typeof(IEcsInitSystem),new List<string>()},
-                    {typeof(IEcsRunSystem),new List<string>()},
-                    {typeof(IEcsDisposeSystem),new List<string>()}
-                });
- 
-                foreach (var sys in unitSystemsObserver.allSystems)
-                {
-                    if (sys is IEcsInitSystem)
-                        _cashedSystems[unitSystemsObserver][typeof(IEcsInitSystem)].Add(sys.GetType().Name);
-                    
-                    if (sys is IEcsRunSystem)
-                        _cashedSystems[unitSystemsObserver][typeof(IEcsRunSystem)].Add(sys.GetType().Name);
-
-                    if (sys is IEcsDisposeSystem)
-                        _cashedSystems[unitSystemsObserver][typeof(IEcsDisposeSystem)].Add(sys.GetType().Name);
-                } 
-            }
+            
+            SortSystems();
         }
 
         private void OnDisable()
@@ -80,6 +60,31 @@ namespace Secs.Debug
                      }
                  }
              }
+        }
+
+        private void SortSystems()
+        {
+            foreach (var unitSystemsObserver in _ecsSystemsObserver.ecsSystems)
+            {
+                _cashedSystems.Add(unitSystemsObserver, new Dictionary<Type, List<string>>()
+                {
+                    {typeof(IEcsInitSystem),new List<string>()},
+                    {typeof(IEcsRunSystem),new List<string>()},
+                    {typeof(IEcsDisposeSystem),new List<string>()}
+                });
+ 
+                foreach (var sys in unitSystemsObserver.AllSystems)
+                {
+                    if (sys is IEcsInitSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsInitSystem)].Add(sys.GetType().Name);
+                    
+                    if (sys is IEcsRunSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsRunSystem)].Add(sys.GetType().Name);
+
+                    if (sys is IEcsDisposeSystem)
+                        _cashedSystems[unitSystemsObserver][typeof(IEcsDisposeSystem)].Add(sys.GetType().Name);
+                } 
+            }
         }
     }
 }

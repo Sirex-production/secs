@@ -6,13 +6,8 @@ namespace Secs.Debug
     [ExecuteInEditMode]
     public sealed class EcsSystemsObserver : MonoBehaviour
     {
-        internal List<EcsUnitSystemsObserver> ecsUnitSystemsObservers;
+        internal List<EcsSystems> ecsSystems;
         internal EcsWorld world;
     }
-
-
-    internal struct EcsUnitSystemsObserver
-    {
-        internal List<IEcsSystem> allSystems;
-    }
+    
 }

@@ -8,18 +8,9 @@ namespace Secs.Debug
         private EcsWorld _ecsWorld;
         private List<EcsSystems> _systems;
         private GameObject _worldGameObject;
+        private EcsSystemsObserver _ecsSystemsObserver;
         private readonly Dictionary<int, EcsEntityObserver> _entityObservers = new();
-
-        public EcsProfilerEntityViewSys(EcsWorld world,EcsSystems ecsSys)
-        {
-            _ecsWorld = world;
-            _systems = new List<EcsSystems>() { ecsSys };
-            
-            CreateWorld();
-            
-            _ecsWorld.OnEntityCreated += CreateNewObserver;
-            _ecsWorld.OnEntityDeleted += DeleteObserver;
-        }
+        
         public EcsProfilerEntityViewSys(EcsWorld world, List<EcsSystems> ecsSys)
         {
             _ecsWorld = world;
@@ -34,20 +25,12 @@ namespace Secs.Debug
         private void CreateWorld()
         {
             _worldGameObject = new GameObject($"World");
-            var worldObserver = _worldGameObject.AddComponent<EcsSystemsObserver>();
+            _ecsSystemsObserver = _worldGameObject.AddComponent<EcsSystemsObserver>();
 
-            worldObserver.world = _ecsWorld;
-            worldObserver.ecsUnitSystemsObservers ??= new List<EcsUnitSystemsObserver>();
+            _ecsSystemsObserver.world = _ecsWorld;
+            _ecsSystemsObserver.ecsSystems = _systems;
             
-            foreach (var sys in _systems)
-            {
-                worldObserver.ecsUnitSystemsObservers.Add(new EcsUnitSystemsObserver()
-                {
-                    allSystems = sys.AllSystems,
-                });
-            }
-            
-            Object.DontDestroyOnLoad(this._worldGameObject);
+            _worldGameObject.transform.SetParent(EcsWorldsObserver.Instance.gameObject.transform);
         }
         
         private void CreateNewObserver(int entity)
@@ -73,7 +56,6 @@ namespace Secs.Debug
         public void OnDispose()
         {
             Object.Destroy(_worldGameObject);
-            
             _ecsWorld = null;
             _worldGameObject = null;
             _entityObservers.Clear();

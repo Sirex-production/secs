@@ -1,6 +1,6 @@
 ﻿# Debug Profiler extension
 
-Debug Profiler previews [world](../README.md#world), [systems](../README.md#systems) and allows to see/modify entity's [components](../README.md#component)
+Debug Profiler previews [world](../README.md#world), [systems](../README.md#systems) and allows to modify entity's [components](../README.md#component)
 
 ## Content
 

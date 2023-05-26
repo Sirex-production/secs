@@ -30,7 +30,8 @@ namespace Secs
 		
 		private void OnEntityDeleted(int entityId)
 		{
-			_entities.Remove(entityId);
+			if(_world.IsEntityDead(entityId))
+				_entities.Remove(entityId);
 		}
 
 		private void OnComponentAddedToEntity(int entityId, Type componentType)

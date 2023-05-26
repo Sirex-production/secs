@@ -102,15 +102,16 @@ namespace Secs
 
 		public int NewEntity()
 		{
-			if (_deadEntities.TryPop(out int entityId))
-				return entityId;
-
-			_lastEntityId++;
+			bool isEntityReused = _deadEntities.TryPop(out int reusedEntityId);
+			int actualEntityId = isEntityReused ? reusedEntityId : ++_lastEntityId;
 			
-			_aliveEntities.Add(_lastEntityId);
-			_entitiesComponents.Add(_lastEntityId, new EcsTypeMask());
-			OnEntityCreated?.Invoke(_lastEntityId);
-			return _lastEntityId;
+			if(!isEntityReused)
+				_entitiesComponents.Add(actualEntityId, new EcsTypeMask());
+			
+			_aliveEntities.Add(actualEntityId);
+			OnEntityCreated?.Invoke(actualEntityId);
+			
+			return actualEntityId;
 		}
 
 		public void DelEntity(in int entityId)

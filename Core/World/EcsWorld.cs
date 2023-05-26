@@ -74,7 +74,7 @@ namespace Secs
 			});
 		}
 
-		internal void UpdateFilters()
+		public void UpdateFilters()
 		{
 			foreach(var updateOperation in _entityUpdateOperations)
 			{

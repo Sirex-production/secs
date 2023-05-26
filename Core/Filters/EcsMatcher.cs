@@ -4,44 +4,44 @@ namespace Secs
 {
 	public sealed class EcsMatcher
 	{
-		private readonly EcsTypeMask _includeTypeMask;
-		private readonly EcsTypeMask _excludeTypeMask;
+		public readonly EcsTypeMask includeTypeMask;
+		public readonly EcsTypeMask excludeTypeMask;
 
 		private EcsMatcher(Type[] includeTypes)
 		{
-			_includeTypeMask = new EcsTypeMask(includeTypes);
+			includeTypeMask = new EcsTypeMask(includeTypes);
 		}
 		
 		private EcsMatcher(Type[] includeTypes, Type[] excludeTypes)
 		{
-			_includeTypeMask = new EcsTypeMask(includeTypes);
-			_excludeTypeMask = new EcsTypeMask(excludeTypes);
+			includeTypeMask = new EcsTypeMask(includeTypes);
+			excludeTypeMask = new EcsTypeMask(excludeTypes);
 
-			if(_includeTypeMask.HasCommonTypesWith(_excludeTypeMask))
+			if(includeTypeMask.HasCommonTypesWith(excludeTypeMask))
 				throw new ArgumentException("Include types overlaps with exclude types");
 		}
 
 		internal bool IsIncluded(Type type)
 		{
-			return _includeTypeMask.ContainsType(type);
+			return includeTypeMask.ContainsType(type);
 		}
 		
 		internal bool IsExcluded(Type type)
 		{
-			if(_excludeTypeMask == null)
+			if(excludeTypeMask == null)
 				return false;
 			
-			return _excludeTypeMask.ContainsType(type);
+			return excludeTypeMask.ContainsType(type);
 		}
 
 		internal bool IsSameAsIncludeMask(EcsTypeMask otherMask)
 		{
-			return _includeTypeMask == otherMask;
+			return includeTypeMask == otherMask;
 		}
 		
 		internal bool IsSameAsExcludeMask(EcsTypeMask otherMask)
 		{
-			return _excludeTypeMask == otherMask;
+			return excludeTypeMask == otherMask;
 		}
 
 #region Comparing
@@ -58,12 +58,12 @@ namespace Secs
 			if(other is null)
 				return false;
 			
-			return _includeTypeMask == other._includeTypeMask && _excludeTypeMask == other._excludeTypeMask;
+			return includeTypeMask == other.includeTypeMask && excludeTypeMask == other.excludeTypeMask;
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(_includeTypeMask, _excludeTypeMask);
+			return HashCode.Combine(includeTypeMask, excludeTypeMask);
 		}
 		
 		public static bool operator==(EcsMatcher first, EcsMatcher second)

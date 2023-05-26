@@ -40,13 +40,13 @@ namespace Secs
 				_entities.Remove(entityId);
 				return;
 			}
-
+			
 			if(!_matcher.IsIncluded(componentType))
 				return;
 
-			var entityComponents = _world.GetEntityComponentsTypeMask(entityId);
+			var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
 			
-			if(_matcher.IsSameAsIncludeMask(entityComponents))
+			if(entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
 				_entities.Add(entityId);
 		}
 
@@ -61,9 +61,9 @@ namespace Secs
 			if(!_matcher.IsExcluded(componentType))
 				return;
 		
-			var entityComponents = _world.GetEntityComponentsTypeMask(entityId);
-
-			if(_matcher.IsSameAsIncludeMask(entityComponents))
+			var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
+			
+			if(entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
 				_entities.Add(entityId);
 		}
 #region Enumeration

@@ -34,7 +34,7 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void GrowBuffer(int minSize)
 		{
-			int resizeSize = Math.Max(_componentsBuffer.Length * 2, minSize);
+			int resizeSize = Math.Max(_componentsBuffer.Length * 2, minSize + 1);
 			Array.Resize(ref _componentsBuffer, resizeSize);
 		}
 		

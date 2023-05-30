@@ -14,7 +14,7 @@ namespace Secs
         {
             if(_entityId != -1)
             {
-                Debug.LogError("This entity reference is occupied by other entity");
+                UnityEngine.Debug.LogError($"Trying to override entity id on already occupied {nameof(EcsEntityReference)} on game object {gameObject.name}");
                 return;
             }
 
@@ -26,7 +26,7 @@ namespace Secs
         {
             if(_entityId == -1)
             {
-                Debug.LogError("Link entity before unlinking it");
+                UnityEngine.Debug.LogError($"Link entity before unlinking it on game object {gameObject.name}");
                 return;
             }
 

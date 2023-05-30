@@ -11,12 +11,13 @@ namespace Secs
 
 		public EcsPool(int capacity, EcsWorld world)
 		{
-			_world = world ?? throw new ArgumentNullException(nameof(world));
+			_world = world ?? throw new EcsException(this, "World can't be null");
 			_componentsBuffer = new T[capacity];
 
 			_world.OnEntityDeleted += OnEntityDeleted;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void Dispose()
 		{
 			_world.OnEntityDeleted -= OnEntityDeleted;
@@ -38,45 +39,48 @@ namespace Secs
 			Array.Resize(ref _componentsBuffer, resizeSize);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T GetComponent(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
-				throw new ArgumentException("Trying to manipulate with dead entity");
+				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
 			
 			if (!HasComponent(entityId))
-				throw new ArgumentException("Trying to get component that entity does not have");
+				throw new EcsException(this, $"Trying to get component that entity {entityId} does not have");
 
 			return ref _componentsBuffer[entityId];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T AddComponent(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
-				throw new ArgumentException("Trying to manipulate with dead entity");
+				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
 			
 			if (HasComponent(entityId))
-				throw new ArgumentException("Trying to add component that entity already have");
+				throw new EcsException(this, $"Trying to add component that entity {entityId} already have");
 			
 			if (entityId >= _componentsBuffer.Length)
 				GrowBuffer(entityId);
 			
 			_world.GetEntityComponentsTypeMask(entityId).AddType<T>();
-			_world.RegisterComponentAddedOperation<T>(entityId);
+			_world.RegisterAddedComponent<T>(entityId);
 
 			return ref _componentsBuffer[entityId];
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DelComponent(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
-				throw new ArgumentException("Trying to manipulate with dead entity");
+				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
 			
 			if (!HasComponent(entityId))
-				throw new ArgumentException("Trying to delete component that entity does not have");
+				throw new EcsException(this, $"Trying to delete component that entity {entityId} does not have");
 			
 			_componentsBuffer[entityId] = default;
 			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
-			_world.RegisterComponentDeletedOperation<T>(entityId);
+			_world.RegisterDeletedComponent<T>(entityId);
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

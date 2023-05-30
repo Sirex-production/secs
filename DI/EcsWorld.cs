@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using Mono.CompilerServices.SymbolWriter;
 
 namespace Secs
 {
@@ -16,7 +17,8 @@ namespace Secs
 		{
 			if(!componentType.IsValueType)
 				throw new ArgumentException("Pool can not be created with non struct component");
-			
+
+			var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
 			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(componentType);
 
 			if (_pools.ContainsKey(typeIndex))
@@ -24,7 +26,7 @@ namespace Secs
 
 			var poolType = typeof(EcsPool<>);
 			var poolTypeWithGenericParameter = poolType.MakeGenericType(componentType);
-			var poolInstance = Activator.CreateInstance(poolTypeWithGenericParameter, config.pool.initialAllocatedComponents, this);
+			var poolInstance = Activator.CreateInstance(poolTypeWithGenericParameter, bindingFlags, null, new object[] {config.pool.initialAllocatedComponents, this}, null);
 			
 			_pools.Add(typeIndex, poolInstance);
 

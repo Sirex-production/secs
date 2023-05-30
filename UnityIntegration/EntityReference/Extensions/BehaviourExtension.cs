@@ -24,7 +24,7 @@ namespace Secs
         {
             if(!component.TryGetComponent(out EcsEntityReference reference))
             {
-                Debug.LogError($"Game object with name {component.gameObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
+                UnityEngine.Debug.LogError($"Game object with name {component.gameObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace Secs
         {
             if(!linkedObject.TryGetComponent(out EcsEntityReference reference))
             {
-                Debug.LogError($"Game object with name {linkedObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
+                UnityEngine.Debug.LogError($"Game object with name {linkedObject.name} must have {nameof(EcsEntityReference)} before unlinking it");
                 return;
             }
 

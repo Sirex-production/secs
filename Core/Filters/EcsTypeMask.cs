@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
 	public sealed partial class EcsTypeMask
 	{
-		private EcsDynamicBitArray _bitArray;
+		private readonly EcsDynamicBitArray _bitArray;
 		
 		public EcsTypeMask()
 		{
@@ -19,7 +20,7 @@ namespace Secs
 				return;
 
 			if(types.Length < 1)
-				throw new ArgumentException("Cannot create mask out of empty array of types");
+				throw new EcsException(this, "Cannot create mask out of empty array of types");
 
 			foreach(var type in types)
 			{
@@ -28,6 +29,7 @@ namespace Secs
 			}
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool ContainsType<T>() where T : struct
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType<T>();
@@ -35,6 +37,7 @@ namespace Secs
 			return _bitArray[indexOfType];
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool ContainsType(Type type)
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(type);
@@ -42,6 +45,7 @@ namespace Secs
 			return _bitArray[indexOfType];
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool Includes(EcsTypeMask ecsTypeMask)
 		{
 			var otherBitArray = ecsTypeMask._bitArray;
@@ -55,6 +59,7 @@ namespace Secs
 			return true;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool HasCommonTypesWith(EcsTypeMask otherTypeMask)
 		{
 			int longestMaskCount = Math.Max(_bitArray.Length, otherTypeMask._bitArray.Length);
@@ -71,6 +76,7 @@ namespace Secs
 			return false;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void AddType<T>() where T : struct
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
@@ -78,6 +84,7 @@ namespace Secs
 			_bitArray[indexOfType] = true;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RemoveType<T>() where T : struct
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
@@ -86,6 +93,7 @@ namespace Secs
 		}
 
 #region Comparing
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool Equals(object obj)
 		{
 			if(obj is not EcsTypeMask mask)
@@ -94,6 +102,7 @@ namespace Secs
 			return Equals(mask);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private bool Equals(EcsTypeMask other)
 		{
 			if(other is null)
@@ -109,16 +118,19 @@ namespace Secs
 			return true;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
 		{
 			return _bitArray != null ? _bitArray.GetHashCode() : 0;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator ==(EcsTypeMask ecsTypeMask1, EcsTypeMask ecsTypeMask2)
 		{
 			return ecsTypeMask1.Equals(ecsTypeMask2);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator !=(EcsTypeMask ecsTypeMask1, EcsTypeMask ecsTypeMask2)
 		{
 			return !ecsTypeMask1.Equals(ecsTypeMask2);

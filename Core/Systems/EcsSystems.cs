@@ -18,28 +18,20 @@ namespace Secs
 			_world = world;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EcsSystems Add(IEcsSystem ecsSystem)
 		{
 			_allSystems.Add(ecsSystem);
 
-			if(ecsSystem is IEcsInitSystem initSystem)
-			{
+			if(ecsSystem is IEcsInitSystem initSystem) 
 				OnInitFired += initSystem.OnInit;
-				OnInitFired += _world.UpdateFilters;
-			}
 
-			if(ecsSystem is IEcsRunSystem runSystem)
-			{
+			if(ecsSystem is IEcsRunSystem runSystem) 
 				OnRunFired += runSystem.OnRun;
-				OnRunFired += _world.UpdateFilters;
-			}
 
-			if(ecsSystem is IEcsDisposeSystem disposeSystems)
-			{
+			if(ecsSystem is IEcsDisposeSystem disposeSystems) 
 				OnDisposeFired += disposeSystems.OnDispose;
-				OnDisposeFired += _world.UpdateFilters;
-			}
-			
+
 			return this;
 		}
 

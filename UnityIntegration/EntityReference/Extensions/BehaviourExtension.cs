@@ -4,6 +4,11 @@ namespace Secs
 {
     public static class Extensions
     {
+        /// <summary>
+        /// Links entity to specific EcsEntityReference and world
+        /// </summary>
+        /// <param name="world">World to which entity belongs</param>
+        /// <param name="entityId">Entity that will be attached</param>
         public static void LinkEcsEntity(this Component component, EcsWorld world, int entityId)
         {
             if (!component.TryGetComponent(out EcsEntityReference reference))
@@ -12,6 +17,11 @@ namespace Secs
             reference.Link(world, entityId);
         }
         
+        /// <summary>
+        /// Links entity to specific EcsEntityReference and world
+        /// </summary>
+        /// <param name="world">World to which entity belongs</param>
+        /// <param name="entityId">Entity that will be attached</param>
         public static void LinkEcsEntity(this GameObject linkedObject, EcsWorld world, int entityId)
         {
             if (!linkedObject.TryGetComponent(out EcsEntityReference reference))
@@ -20,6 +30,9 @@ namespace Secs
             reference.Link(world, entityId);
         }
 
+        /// <summary>
+        /// Unlinks entity from specific EcsEntityReference
+        /// </summary>
         public static void UnlinkEcsEntity(this Component component)
         {
             if(!component.TryGetComponent(out EcsEntityReference reference))
@@ -31,6 +44,9 @@ namespace Secs
             reference.Unlink();
         }
 
+        /// <summary>
+        /// Unlinks entity from specific EcsEntityReference
+        /// </summary>
         public static void UnlinkEcsEntity(this GameObject linkedObject)
         {
             if(!linkedObject.TryGetComponent(out EcsEntityReference reference))

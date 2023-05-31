@@ -4,6 +4,10 @@ namespace Secs
 {
 	public sealed partial class EcsWorld
 	{
+		/// <summary>
+		/// Fires baking logic for specific baker
+		/// </summary>
+		/// <param name="baker">Baker that will be backed</param>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BakeSpecificBaker(EcsMonoBaker baker)
 		{
@@ -35,6 +39,10 @@ namespace Secs
 				UnityEngine.Object.Destroy(baker.gameObject);
 		}
 		
+		/// <summary>
+		/// Finds all bakers on the scene and bakes them.
+		/// </summary>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void BakeAllBakersInScene()
 		{
 			var bakers = UnityEngine.Object.FindObjectsOfType<EcsMonoBaker>();

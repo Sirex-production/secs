@@ -24,7 +24,7 @@ namespace Secs
 		internal event Action<int, Type> OnComponentAddedToEntity;
 		internal event Action<int, Type> OnComponentDeletedFromEntity;
 
-		internal ICollection<int> AliveEntities => _aliveEntities;
+		internal IReadOnlyCollection<int> AliveEntities => _aliveEntities;
 		public string Id
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

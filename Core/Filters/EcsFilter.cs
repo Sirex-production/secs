@@ -32,6 +32,8 @@ namespace Secs
 			_world.OnEntityDeleted += OnEntityDeleted;
 			_world.OnComponentAddedToEntity += OnComponentAddedToEntity;
 			_world.OnComponentDeletedFromEntity += OnComponentDeletedFromEntity;
+
+			FetchAliveEntities();
 		}
 
 		public void Dispose()
@@ -89,6 +91,23 @@ namespace Secs
 			{
 				_entities.Add(entityId);
 				_isEntitiesSetModified = true;
+			}
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private void FetchAliveEntities()
+		{
+			foreach(int entityId in _world.AliveEntities)
+			{
+				var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
+				
+				if(!entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
+					continue;
+				
+				if(entityComponentsTypeMask.HasCommonTypesWith(_matcher.excludeTypeMask))
+					continue;
+				
+				_entities.Add(entityId);
 			}
 		}
 #region Enumeration

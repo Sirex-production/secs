@@ -25,6 +25,7 @@ namespace Secs
 			get => ref _component;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T AddComponent(int entityId)
 		{
 			if (_ownerEntityId > -1)
@@ -34,6 +35,7 @@ namespace Secs
 			return ref _component;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DelComponent()
 		{
 			_component = default;

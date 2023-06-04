@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Secs
 {
@@ -20,6 +21,25 @@ namespace Secs
         /// </summary>
         public EcsWorld World => _world;
         
+        private void OnDestroy()
+        {
+            if(_world == null || _entityId == -1)
+                return;
+
+            _world.OnEntityDeleted -= OnEntityDeleted;
+        }
+
+        private void OnEntityDeleted(int deletedEntity)
+        {
+            if(_world == null || _entityId == -1)
+                return;
+            
+            if(_entityId != deletedEntity)
+                return;
+            
+            Unlink();
+        }
+        
         /// <summary>
         /// Links given Ecs world and entity to the EcsEntityReference
         /// </summary>
@@ -35,6 +55,7 @@ namespace Secs
 
             _world = ecsWorld;
             _entityId = entityId;
+            _world.OnEntityDeleted += OnEntityDeleted;
         }
         
         /// <summary>
@@ -47,7 +68,8 @@ namespace Secs
                 UnityEngine.Debug.LogError($"Link entity before unlinking it on game object {gameObject.name}");
                 return;
             }
-
+            
+            _world.OnEntityDeleted -= OnEntityDeleted;
             _world = null;
             _entityId = -1;
         }

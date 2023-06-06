@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Secs.Debug 
@@ -21,7 +23,8 @@ namespace Secs.Debug
             _ecsWorld.OnEntityCreated += CreateNewObserver;
             _ecsWorld.OnEntityDeleted += DeactivateObserver;
             
-            _ecsWorld.entit
+            foreach (var ecsWorldAliveEntity in _ecsWorld.AliveEntities)
+                CreateNewObserver(ecsWorldAliveEntity);
         }
         
         private void CreateWorld()
@@ -70,3 +73,4 @@ namespace Secs.Debug
         }
     }
 }
+#endif

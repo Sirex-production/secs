@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using UnityEditor;
 
 namespace Secs.Debug
@@ -16,3 +17,4 @@ namespace Secs.Debug
         }
     }
 }
+#endif

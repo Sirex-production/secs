@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace Secs.Debug
             {typeof(string), new StringDrawer()},
             {typeof(Vector2), new Vector2Drawer()},
             {typeof(Vector3), new Vector3Drawer()},
+            {typeof(Quaternion), new QuaternionDrawer()},
             {typeof(Vector4), new Vector4Drawer()},
         };
         
@@ -51,3 +53,4 @@ namespace Secs.Debug
         }
     }
 }
+#endif

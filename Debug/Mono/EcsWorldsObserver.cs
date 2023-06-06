@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -71,3 +72,4 @@ namespace Secs.Debug
         }
     }
 }
+#endif

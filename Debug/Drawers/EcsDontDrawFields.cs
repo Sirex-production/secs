@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if UNITY_EDITOR
+using System;
 
 namespace Secs.Debug
 {
@@ -8,3 +9,4 @@ namespace Secs.Debug
         public EcsDontDrawFields() { }
     }
 }
+#endif

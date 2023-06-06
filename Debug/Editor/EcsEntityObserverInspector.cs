@@ -1,5 +1,5 @@
-﻿ 
- 
+﻿#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +32,7 @@ namespace Secs.Debug
         private object _popupObject;
 
         private float _refresh_timer = 0.3f;
+        private bool _isEntityDead = false;
         private void Awake()
         {
             var list = new List<string>();
@@ -92,6 +93,14 @@ namespace Secs.Debug
             
             _refresh_timer = 0f;
 
+            if (!_ecsWorld.AliveEntities.Contains(_entityId))
+            {
+                _isEntityDead = true;
+                return;
+            }
+
+            _isEntityDead = false;
+            
             var shouldRepaint = false;
             for (int i = 0; i < _numberOfComponents; i++)
             {
@@ -132,10 +141,18 @@ namespace Secs.Debug
                 return;
             }
 
+            if (_isEntityDead)
+            {
+                EditorGUILayout.LabelField("The entity is dead");
+                return;
+            }
+            
             CreateAddComponentScope();
 
             for (int i = 0; i < _numberOfComponents; i++)
             {
+                GUI.backgroundColor = EntityColorPallet.GetColorByIndex(i);
+                
                 var type = _cashedComponentTypes[i];
                 
                 using (new EditorGUILayout.VerticalScope("box"))
@@ -152,6 +169,14 @@ namespace Secs.Debug
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitComponents()
         {
+            if (!_ecsWorld.AliveEntities.Contains(_entityId))
+            {
+                _isEntityDead = true;
+                return;
+            }
+
+            _isEntityDead = false;
+            
             _numberOfComponents = 0;
             var types = _ecsWorld.GetEntityComponentsTypeMask(_entityId).GetComponents();
             
@@ -287,3 +312,4 @@ namespace Secs.Debug
         }
     }
 }
+#endif

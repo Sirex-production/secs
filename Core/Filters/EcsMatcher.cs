@@ -1,50 +1,56 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
 	public sealed class EcsMatcher
 	{
-		private readonly EcsTypeMask _includeTypeMask;
-		private readonly EcsTypeMask _excludeTypeMask;
+		internal readonly EcsTypeMask includeTypeMask;
+		internal readonly EcsTypeMask excludeTypeMask;
 
 		private EcsMatcher(Type[] includeTypes)
 		{
-			_includeTypeMask = new EcsTypeMask(includeTypes);
+			includeTypeMask = new EcsTypeMask(includeTypes);
 		}
 		
 		private EcsMatcher(Type[] includeTypes, Type[] excludeTypes)
 		{
-			_includeTypeMask = new EcsTypeMask(includeTypes);
-			_excludeTypeMask = new EcsTypeMask(excludeTypes);
+			includeTypeMask = new EcsTypeMask(includeTypes);
+			excludeTypeMask = new EcsTypeMask(excludeTypes);
 
-			if(_includeTypeMask.HasCommonTypesWith(_excludeTypeMask))
-				throw new ArgumentException("Include types overlaps with exclude types");
+			if(includeTypeMask.HasCommonTypesWith(excludeTypeMask))
+				throw new EcsException(this, "Include types overlaps with exclude types");
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool IsIncluded(Type type)
 		{
-			return _includeTypeMask.ContainsType(type);
+			return includeTypeMask.ContainsType(type);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool IsExcluded(Type type)
 		{
-			if(_excludeTypeMask == null)
+			if(excludeTypeMask == null)
 				return false;
 			
-			return _excludeTypeMask.ContainsType(type);
+			return excludeTypeMask.ContainsType(type);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool IsSameAsIncludeMask(EcsTypeMask otherMask)
 		{
-			return _includeTypeMask == otherMask;
+			return includeTypeMask == otherMask;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool IsSameAsExcludeMask(EcsTypeMask otherMask)
 		{
-			return _excludeTypeMask == otherMask;
+			return excludeTypeMask == otherMask;
 		}
 
 #region Comparing
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool Equals(object obj)
 		{
 			if(obj is not EcsMatcher ecsFilterMask)
@@ -53,19 +59,22 @@ namespace Secs
 			return Equals(ecsFilterMask);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private bool Equals(EcsMatcher other)
 		{
 			if(other is null)
 				return false;
 			
-			return _includeTypeMask == other._includeTypeMask && _excludeTypeMask == other._excludeTypeMask;
+			return includeTypeMask == other.includeTypeMask && excludeTypeMask == other.excludeTypeMask;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(_includeTypeMask, _excludeTypeMask);
+			return HashCode.Combine(includeTypeMask, excludeTypeMask);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator==(EcsMatcher first, EcsMatcher second)
 		{
 			if(first is null && second is null)
@@ -77,6 +86,7 @@ namespace Secs
 			return first.Equals(second);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator!=(EcsMatcher first, EcsMatcher second)
 		{
 			if(first is null && second is null)
@@ -90,6 +100,7 @@ namespace Secs
 #endregion
 
 #region Builder
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static EcsMatcherBuilder Include(params Type[] includeComponentTypes)
 		{
 			return new EcsMatcherBuilder(includeComponentTypes);
@@ -106,15 +117,17 @@ namespace Secs
 				_excludeComponentTypes = null;
 			}
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public EcsMatcherBuilder Exclude(params Type[] excludeComponentTypes)
 			{
 				if(_excludeComponentTypes != null)
-					throw new ArgumentException("Exclude types were already assigned");
+					throw new EcsException(this, "Exclude types were already assigned");
 				
 				_excludeComponentTypes = excludeComponentTypes;
 				return this;
 			}
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public EcsMatcher End()
 			{
 				return new EcsMatcher(_includeComponentTypes, _excludeComponentTypes);

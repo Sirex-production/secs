@@ -1,16 +1,22 @@
 ﻿using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public class EcsDynamicBitArray
+	public sealed class EcsDynamicBitArray
 	{
 		private BitArray _bitArrayMask;
 
-		public int Length => _bitArrayMask.Length;
-		
+		public int Length
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => _bitArrayMask.Length;
+		}
+
 		public bool this[int index]
 		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get
 			{
 				if(_bitArrayMask.Length <= index)
@@ -19,6 +25,7 @@ namespace Secs
 				return _bitArrayMask[index];
 			}
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			set
 			{
 				if(_bitArrayMask.Length <= index)
@@ -38,6 +45,7 @@ namespace Secs
 			_bitArrayMask = new BitArray(amountOfAllocatedBits, false);
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void ResizeBitArray(int minimalLength)
 		{
 			int currentLength = _bitArrayMask.Length;

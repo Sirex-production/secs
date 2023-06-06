@@ -6,34 +6,46 @@ namespace Secs
 {
 	public sealed partial class EcsWorld
 	{
-		private int _lastEntityId = -1;
-
 		internal readonly EcsConfig config;
-		
+
+		private readonly string _id;
+
 		private readonly HashSet<int> _aliveEntities;
 		private readonly Stack<int> _deadEntities;
-		
-		private readonly List<EcsEntityUpdateOperation> _entityUpdateOperations;
 
 		private readonly Dictionary<int, EcsTypeMask> _entitiesComponents;
 		private readonly Dictionary<int, object> _pools;
 		private readonly Dictionary<EcsMatcher, EcsFilter> _filters;
+
+		private int _lastEntityId = -1;
 
 		internal event Action<int> OnEntityCreated;
 		internal event Action<int> OnEntityDeleted;
 		internal event Action<int, Type> OnComponentAddedToEntity;
 		internal event Action<int, Type> OnComponentDeletedFromEntity;
 
-		public EcsWorld() : this(EcsConfig.Default) { }
+		internal IReadOnlyCollection<int> AliveEntities => _aliveEntities;
+		public string Id
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => _id;
+		}
 
-		public EcsWorld(EcsConfig config)
+		public EcsWorld() : this(EcsConfig.Default)
+		{
+		}
+
+		public EcsWorld(in string id) : this(EcsConfig.Default, id)
+		{
+		}
+
+		public EcsWorld(EcsConfig config, in string id = null)
 		{
 			this.config = config;
+			_id = string.IsNullOrWhiteSpace(id) ? this.config.world.defaultWorldId : id;
 
 			_aliveEntities = new HashSet<int>(config.world.initialAllocatedEntities);
 			_deadEntities = new Stack<int>(config.world.initialAllocatedEntities);
-			
-			_entityUpdateOperations = new List<EcsEntityUpdateOperation>(config.world.initialAllocatedEntityUpdateOperations);
 
 			_entitiesComponents = new Dictionary<int, EcsTypeMask>(config.world.initialAllocatedEntities);
 			_pools = new Dictionary<int, object>(config.world.initialAllocatedPools);
@@ -41,111 +53,78 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal bool IsEntityDead(int entityId)
+		internal EcsTypeMask GetEntityComponentsTypeMask(in int entityId)
+		{
+			if(!_entitiesComponents.ContainsKey(entityId))
+				throw new EcsException(this, $"Trying to get components type mask of entity {entityId} that does not exist");
+			
+			return _entitiesComponents[entityId];
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void RegisterAddedComponent<T>(in int entityId) where T : struct, IEcsComponent
+		{
+			OnComponentAddedToEntity?.Invoke(entityId, typeof(T));
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void RegisterDeletedComponent<T>(in int entityId) where T : struct, IEcsComponent
+		{
+			OnComponentDeletedFromEntity?.Invoke(entityId, typeof(T));
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsEntityDead(int entityId)
 		{
 			return _deadEntities.Contains(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal EcsTypeMask GetEntityComponentsTypeMask(in int entityId)
-		{
-			return _entitiesComponents[entityId];
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void RegisterComponentAddedOperation<T>(in int entityId) where T : struct, IEcsComponent
-		{
-			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
-			{
-				operationType = EcsEntityUpdateOperation.EcsEntityOperationType.ComponentAdded,
-				entityId = entityId,
-				componentType = typeof(T)
-			});
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal void RegisterComponentDeletedOperation<T>(in int entityId) where T : struct, IEcsComponent
-		{
-			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
-			{
-				operationType = EcsEntityUpdateOperation.EcsEntityOperationType.ComponentDeleted,
-				entityId = entityId,
-				componentType = typeof(T)
-			});
-		}
-
-		internal void UpdateFilters()
-		{
-			foreach(var updateOperation in _entityUpdateOperations)
-			{
-				int entityId = updateOperation.entityId;
-				var componentType = updateOperation.componentType;
-				
-				switch(updateOperation.operationType)
-				{
-					case EcsEntityUpdateOperation.EcsEntityOperationType.ComponentAdded:
-						OnComponentAddedToEntity?.Invoke(entityId, componentType);
-						break;
-					case EcsEntityUpdateOperation.EcsEntityOperationType.ComponentDeleted:
-						OnComponentDeletedFromEntity?.Invoke(entityId, componentType);
-						break;
-					case EcsEntityUpdateOperation.EcsEntityOperationType.EntityDeleted:
-						OnEntityDeleted?.Invoke(entityId);
-						break;
-					default:
-						throw new ArgumentOutOfRangeException();
-				}
-			}
-			
-			_entityUpdateOperations.Clear();
-		}
-
 		public int NewEntity()
 		{
-			if (_deadEntities.TryPop(out int entityId))
-				return entityId;
+			bool isEntityReused = _deadEntities.TryPop(out int reusedEntityId);
+			int actualEntityId = isEntityReused ? reusedEntityId : ++_lastEntityId;
 
-			_lastEntityId++;
-			
-			_aliveEntities.Add(_lastEntityId);
-			_entitiesComponents.Add(_lastEntityId, new EcsTypeMask());
-			OnEntityCreated?.Invoke(_lastEntityId);
-			return _lastEntityId;
+			if(!isEntityReused)
+				_entitiesComponents.Add(actualEntityId, new EcsTypeMask());
+
+			_aliveEntities.Add(actualEntityId);
+			OnEntityCreated?.Invoke(actualEntityId);
+
+			return actualEntityId;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public void DelEntity(in int entityId)
 		{
-			if (!_aliveEntities.Contains(entityId))
-				throw new ArgumentException("Trying to delete existing entity");
+			if(!_aliveEntities.Contains(entityId))
+				throw new EcsException(this, $"Trying to delete non-existing entity ({entityId})");
 
 			_aliveEntities.Remove(entityId);
 			_deadEntities.Push(entityId);
-			_entityUpdateOperations.Add(new EcsEntityUpdateOperation
-			{
-				operationType = EcsEntityUpdateOperation.EcsEntityOperationType.EntityDeleted,
-				entityId = entityId,
-				componentType = null
-			});
+			OnEntityDeleted?.Invoke(entityId);
 		}
-		
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
 		{
 			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
 
-			if (_pools.ContainsKey(typeIndex))
+			if(_pools.ContainsKey(typeIndex))
 				return (EcsPool<T>)_pools[typeIndex];
-			
-			var pool = new EcsPool<T>(config.pool.initialAllocatedComponents, this); 
+
+			var pool = new EcsPool<T>(config.pool.initialAllocatedComponents, this);
 			_pools.Add(typeIndex, pool);
 
 			return pool;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EcsFilter GetFilter(EcsMatcher ecsMatcher)
 		{
 			if(ecsMatcher == null)
-				throw new ArgumentNullException(nameof(ecsMatcher));
-			
+				throw new EcsException(this, "Trying to get filter with null matcher");
+
 			if(_filters.ContainsKey(ecsMatcher))
 				return _filters[ecsMatcher];
 

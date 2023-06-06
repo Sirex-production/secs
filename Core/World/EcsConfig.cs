@@ -6,6 +6,7 @@
 		{
 			world = new WorldConfig
 			{
+				defaultWorldId = "unspecified_id",
 				initialAllocatedEntities = 64,
 				initialAllocatedEntityUpdateOperations = 32,
 				initialAllocatedPools = 16,
@@ -27,6 +28,7 @@
 		
 		public struct WorldConfig
 		{
+			public string defaultWorldId;
 			public int initialAllocatedEntities;
 			public int initialAllocatedEntityUpdateOperations;
 			public int initialAllocatedPools;

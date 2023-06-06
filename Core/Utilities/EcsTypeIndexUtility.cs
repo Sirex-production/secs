@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
@@ -10,6 +11,7 @@ namespace Secs
 		
 		private static int _lastUsedIndex = -1;
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int GetIndexOfType(Type type)
 		{
 			if(_typeToIndex.ContainsKey(type))
@@ -22,6 +24,7 @@ namespace Secs
 			return _lastUsedIndex;
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int GetIndexOfType<T>()
 		{
 			var type = typeof(T);
@@ -36,10 +39,11 @@ namespace Secs
 			return _lastUsedIndex;
 		}
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static Type GetTypeByIndex(int index)
 		{
 			if(!_indexToType.ContainsKey(index))
-				throw new ArgumentException("There is such type for such index");
+				throw new EcsException(nameof(EcsTypeIndexUtility), "There is such type for such index");
 
 			return _indexToType[index];
 		}

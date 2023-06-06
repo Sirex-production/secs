@@ -10,11 +10,13 @@ namespace Secs.Debug
     {
         private object _addItem;
         bool IDrawer.IsProperType(Type type) => type.IsArray;
-        object IDrawer.Draw(Type type, string objectName, object value)
+        object IDrawer.Draw(Type type, string objectName, object value, in int currentIndentLevel)
         {
             var array = value as Array;
             var elementType = type.GetElementType();
+            var newIndentLevel = currentIndentLevel + 1;
 
+            EditorGUI.indentLevel = newIndentLevel;
             if (array == null)
             {
                 using (new EditorGUILayout.VerticalScope("box"))
@@ -33,10 +35,10 @@ namespace Secs.Debug
             using (new EditorGUILayout.VerticalScope())
             {
                 if (_addItem == null || _addItem.GetType() != elementType)
-                    _addItem = Activator.CreateInstance(elementType);
+                    _addItem = elementType.IsSubclassOf(typeof(UnityEngine.Object)) ? null : Activator.CreateInstance(elementType);
 
                 using (new EditorGUILayout.HorizontalScope()){
-                    _addItem = EcsComponentDrawer.Draw(elementType, "new Item", _addItem);
+                    _addItem = EcsComponentDrawer.Draw(elementType, "new Item", _addItem,newIndentLevel);
                     
                     if (GUILayout.Button("+"))
                         return AddArrayValue(array, elementType, _addItem);
@@ -59,7 +61,7 @@ namespace Secs.Debug
                         var itemName = $"Element {i}:";
                         
                         using var fieldChange = new EditorGUI.ChangeCheckScope();
-                        var newVal = EcsComponentDrawer.Draw(elementType, itemName, elem);
+                        var newVal = EcsComponentDrawer.Draw(elementType, itemName, elem,newIndentLevel);
 
                         if (fieldChange.changed)
                             array.SetValue(newVal, i);

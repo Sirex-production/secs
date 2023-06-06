@@ -32,17 +32,18 @@ namespace Secs.Debug
             
         };
         
-        internal static object Draw(Type type, string objectName, object value)
+        internal static object Draw(Type type, string objectName, object value, in int currentIndentLevel)
         {
+            var newIndentLevel = currentIndentLevel + 1;
             if (_simpleTypeDrawers.ContainsKey(type))
             {
-                return _simpleTypeDrawers[type].Draw(type, objectName, value);
+                return _simpleTypeDrawers[type].Draw(type, objectName, value,newIndentLevel);
             }
 
             foreach (var drawer in _conditionTypeDrawers)
             {
                 if (drawer.IsProperType(type))
-                    return drawer.Draw(type, objectName, value);
+                    return drawer.Draw(type, objectName, value,newIndentLevel);
             }
 
             EditorGUILayout.LabelField($"{value}");

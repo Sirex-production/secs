@@ -31,7 +31,7 @@ namespace Secs.Debug
         private string[] _popupOptions;
         private object _popupObject;
 
-        private float _refresh_timer = 0f;
+        private float _refresh_timer = 0.3f;
         private void Awake()
         {
             var list = new List<string>();
@@ -204,7 +204,7 @@ namespace Secs.Debug
                     foreach (var field in cashedFields)
                     {
                         using var fieldChange = new EditorGUI.ChangeCheckScope();
-                        var newValue = EcsComponentDrawer.Draw(field.FieldType, field.Name, field.GetValue(_popupObject));
+                        var newValue = EcsComponentDrawer.Draw(field.FieldType, field.Name, field.GetValue(_popupObject),1);
                         if (!fieldChange.changed)
                             continue;
                         
@@ -235,6 +235,7 @@ namespace Secs.Debug
         {
             using (new EditorGUILayout.HorizontalScope("box"))
             {
+                EditorGUI.indentLevel = 1;
                 EditorGUILayout.LabelField($"{type.Name}");
                 if (GUILayout.Button("-"))
                 {
@@ -265,7 +266,7 @@ namespace Secs.Debug
                 {
                     using (var change = new EditorGUI.ChangeCheckScope())
                     {
-                        var newValue = EcsComponentDrawer.Draw(field.FieldType, field.Name, field.GetValue(_cashedComponents[componentId]));
+                        var newValue = EcsComponentDrawer.Draw(field.FieldType, field.Name, field.GetValue(_cashedComponents[componentId]),1);
                         if (!change.changed)
                             continue;
 

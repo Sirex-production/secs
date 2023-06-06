@@ -11,12 +11,14 @@ namespace Secs.Debug
         private object _addItemKey;
         private object _addItemValue;
         bool IDrawer.IsProperType(Type type)=> type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
-        object IDrawer.Draw(Type type, string objectName, object value)
+        object IDrawer.Draw(Type type, string objectName, object value, in int currentIndentLevel)
         {
             var dictionary = value as IDictionary;
             var keyType = type.GetGenericArguments()[0];
             var valueType = type.GetGenericArguments()[1];
-            
+            var newIdentLevel = currentIndentLevel + 1;
+
+            EditorGUI.indentLevel = newIdentLevel;
             if (dictionary == null)
             {
                 using (new EditorGUILayout.VerticalScope("box"))
@@ -39,13 +41,16 @@ namespace Secs.Debug
                 
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    _addItemKey = EcsComponentDrawer.Draw(keyType, "new Key", _addItemKey);
-                    _addItemValue = EcsComponentDrawer.Draw(valueType, "new Value", _addItemValue);
-              
-                    if (GUILayout.Button("+"))
+                    if (!keyType.IsSubclassOf(typeof(UnityEngine.Object)))
                     {
-                        dictionary.Add(_addItemKey,_addItemValue);
-                        return dictionary;
+                        _addItemKey = EcsComponentDrawer.Draw(keyType, "new Key", _addItemKey,newIdentLevel);
+                        _addItemValue = EcsComponentDrawer.Draw(valueType, "new Value", _addItemValue,newIdentLevel);
+              
+                        if (GUILayout.Button("+"))
+                        {
+                            dictionary.Add(_addItemKey,_addItemValue);
+                            return dictionary;
+                        }
                     }
                 }
                 
@@ -66,7 +71,7 @@ namespace Secs.Debug
                         using var change = new EditorGUI.ChangeCheckScope();
                         
                         EditorGUILayout.LabelField($"Key : {key}");
-                        var newValue = EcsComponentDrawer.Draw(valueType, valueName, dictionary[key]);
+                        var newValue = EcsComponentDrawer.Draw(valueType, valueName, dictionary[key],newIdentLevel);
 
                         if (change.changed)
                             dictionary[key] = newValue;

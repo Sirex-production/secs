@@ -8,8 +8,12 @@ namespace Secs.Debug
     {
         bool IDrawer.IsProperType(Type type) => type.IsSerializable && (type.IsClass || type.IsValueType);
 
-        object IDrawer.Draw(Type type, string objectName, object value)
+        object IDrawer.Draw(Type type, string objectName, object value, in int currentIndentLevel)
         {
+            var newIndentLevel = currentIndentLevel + 1;
+            
+            EditorGUI.indentLevel = newIndentLevel;
+            
             if (type.GetCustomAttribute<EcsDontDrawFields>(true) != null)
             {
                 EditorGUILayout.LabelField(type.Name);
@@ -24,7 +28,7 @@ namespace Secs.Debug
                 {
                     var fieldValue = f.GetValue(value);
                     using var change = new EditorGUI.ChangeCheckScope();
-                    var newVal = EcsComponentDrawer.Draw(f.FieldType, f.Name, fieldValue);
+                    var newVal = EcsComponentDrawer.Draw(f.FieldType, f.Name, fieldValue,newIndentLevel);
                     if (change.changed)
                     {
                         f.SetValue(value,newVal);

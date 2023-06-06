@@ -10,11 +10,14 @@ namespace Secs.Debug
     {
         private object _addItem;
         bool IDrawer.IsProperType(Type type) => type.GetInterfaces().Contains((typeof(IList)));
-        object IDrawer.Draw(Type type, string objectName, object value)
+        object IDrawer.Draw(Type type, string objectName, object value, in int currentIndentLevel)
         {
             var list = value as IList;
             var elementType = type.GetGenericArguments()[0];
+            var newIndentLevel = currentIndentLevel + 1;
 
+            EditorGUI.indentLevel = newIndentLevel;
+            
             if (list == null)
             {
                 using (new EditorGUILayout.VerticalScope("box")){
@@ -29,11 +32,12 @@ namespace Secs.Debug
             using (new EditorGUILayout.VerticalScope("box"))
             {
                 if (_addItem == null || _addItem.GetType() != elementType)
-                    _addItem = Activator.CreateInstance(elementType);
+                    _addItem = elementType.IsSubclassOf(typeof(UnityEngine.Object)) ? null : Activator.CreateInstance(elementType);
+                
 
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    _addItem = EcsComponentDrawer.Draw(elementType, "new Item", _addItem);
+                    _addItem = EcsComponentDrawer.Draw(elementType, "new Item", _addItem,newIndentLevel);
 
                     if (GUILayout.Button("+"))
                     {
@@ -59,7 +63,7 @@ namespace Secs.Debug
                         var itemName = $"Element {i}:";
                         
                         using var change = new EditorGUI.ChangeCheckScope();
-                        var newVal = EcsComponentDrawer.Draw(elementType, itemName, elem);
+                        var newVal = EcsComponentDrawer.Draw(elementType, itemName, elem,newIndentLevel);
                         
                         if (change.changed)
                             list[i] = newVal;

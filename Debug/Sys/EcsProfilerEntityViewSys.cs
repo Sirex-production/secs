@@ -19,7 +19,9 @@ namespace Secs.Debug
             CreateWorld();
             
             _ecsWorld.OnEntityCreated += CreateNewObserver;
-            _ecsWorld.OnEntityDeleted += DeleteObserver;
+            _ecsWorld.OnEntityDeleted += DeactivateObserver;
+            
+            _ecsWorld.entit
         }
         
         private void CreateWorld()
@@ -35,6 +37,12 @@ namespace Secs.Debug
         
         private void CreateNewObserver(int entity)
         {
+            if (_entityObservers.ContainsKey(entity))
+            {
+                _entityObservers[entity].gameObject.SetActive(true);
+                return;
+            }
+            
             var entityGameObject = new GameObject($"Entity {entity}");
             entityGameObject.transform.parent = _worldGameObject.transform;
             
@@ -45,12 +53,12 @@ namespace Secs.Debug
             _entityObservers.Add(entity, entityObserver);
         }
         
-        private void DeleteObserver(int entity)
+        private void DeactivateObserver(int entity)
         {
-            var objectToDestroy = _entityObservers[entity];
+            if (!_entityObservers.ContainsKey(entity))
+                return;
             
-            _entityObservers.Remove(entity);
-            Object.Destroy(objectToDestroy.gameObject);
+            _entityObservers[entity].gameObject.SetActive(false);
         }
         
         public void OnDispose()

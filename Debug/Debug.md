@@ -18,7 +18,7 @@ private void Awake()
 	_world = new EcsWorld();
 	_updateSystems = new EcsSystems(_world);
 	
-	//Attack profiler
+	//Attach profiler
 	_updateSystems.AttachProfiler() 
 
 	//Add your systems

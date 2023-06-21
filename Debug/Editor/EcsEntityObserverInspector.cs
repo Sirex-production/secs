@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Secs.Debug;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,20 +18,20 @@ namespace Secs.Debug
         
         private Type[] _cashedComponentTypes = new Type[_maximumNumberOfComponents];
         private object[] _cashedComponents = new object[_maximumNumberOfComponents];
-        private int _numberOfComponents = 0;
+        private int _numberOfComponents;
         
-        private EcsEntityObserver _entityObserver = null;
+        private EcsEntityObserver _entityObserver;
         private int _entityId = -1;
-        private EcsWorld _ecsWorld = null;
+        private EcsWorld _ecsWorld;
 
         private readonly Dictionary<string, Type> _popupStringToTypeDiction = new();
         private IEnumerable<Type> _cmpTypes; 
-        private int _popupIndex = 0;
+        private int _popupIndex;
         private string[] _popupOptions;
         private object _popupObject;
 
-        private float _refresh_timer = 0.3f;
-        private bool _isEntityDead = false;
+        private float _refreshTimer = 0.3f;
+        private bool _isEntityDead;
         private void Awake()
         {
             var list = new List<string>();
@@ -70,7 +69,7 @@ namespace Secs.Debug
             var cmpType = _popupStringToTypeDiction[_popupOptions[_popupIndex]];
             _popupObject = Activator.CreateInstance(cmpType);
 
-            _refresh_timer = 0f;
+            _refreshTimer = 0f;
             EditorApplication.update += OnUpdate;
             _ecsWorld.OnComponentAddedToEntity += OnComponentAddedToEntity;
             _ecsWorld.OnComponentDeletedFromEntity += OnComponentDeletedToEntity;
@@ -78,8 +77,11 @@ namespace Secs.Debug
 
         private void OnDisable()
         {
-            _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
-            _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedToEntity;
+            if(_ecsWorld != null)
+            {
+                _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
+                _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedToEntity;
+            }
             
             _entityObserver = null;
             _entityId = -1;
@@ -91,12 +93,12 @@ namespace Secs.Debug
         
         private void OnUpdate()
         {
-            _refresh_timer += Time.deltaTime;
+            _refreshTimer += Time.deltaTime;
             
-            if(_refresh_timer < REFRESH_RATE)
+            if(_refreshTimer < REFRESH_RATE)
                 return;
             
-            _refresh_timer = 0f;
+            _refreshTimer = 0f;
 
             if (!_ecsWorld.AliveEntities.Contains(_entityId))
             {
@@ -115,7 +117,7 @@ namespace Secs.Debug
                     .GetType()
                     .GetMethod(nameof(EcsWorld.IsSame),BindingFlags.NonPublic | BindingFlags.Instance)?
                     .MakeGenericMethod(_cashedComponentTypes[i])
-                    .Invoke(_ecsWorld, new object[] { _entityId, componentValue});
+                    .Invoke(_ecsWorld, new [] { _entityId, componentValue});
                 
                 if (result != null && (shouldRepaint = !(bool)result))
                 {
@@ -289,7 +291,7 @@ namespace Secs.Debug
                             .GetType()
                             .GetMethod(nameof(EcsWorld.AddItem), BindingFlags.NonPublic | BindingFlags.Instance)?
                             .MakeGenericMethod(cmpType)
-                            .Invoke(_ecsWorld, new object[]
+                            .Invoke(_ecsWorld, new []
                                 {
                                     _entityId, 
                                     _popupObject
@@ -347,7 +349,7 @@ namespace Secs.Debug
                             .GetType()
                             .GetMethod(nameof(EcsWorld.ReplaceItem), BindingFlags.NonPublic | BindingFlags.Instance)?
                             .MakeGenericMethod(type)
-                            .Invoke(_ecsWorld, new object[]
+                            .Invoke(_ecsWorld, new []
                                 {
                                     _entityId, 
                                     _cashedComponents[componentId]

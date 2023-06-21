@@ -72,10 +72,15 @@ namespace Secs.Debug
 
             _refresh_timer = 0f;
             EditorApplication.update += OnUpdate;
+            _ecsWorld.OnComponentAddedToEntity += OnComponentAddedToEntity;
+            _ecsWorld.OnComponentDeletedFromEntity += OnComponentDeletedToEntity;
         }
 
         private void OnDisable()
         {
+            _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
+            _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedToEntity;
+            
             _entityObserver = null;
             _entityId = -1;
             _ecsWorld = null;
@@ -83,7 +88,7 @@ namespace Secs.Debug
             
             EditorApplication.update -= OnUpdate;
         }
-
+        
         private void OnUpdate()
         {
             _refresh_timer += Time.deltaTime;
@@ -105,14 +110,14 @@ namespace Secs.Debug
             for (int i = 0; i < _numberOfComponents; i++)
             {
                 ref var componentValue = ref _cashedComponents[i];
-
+                
                 var result = _ecsWorld
                     .GetType()
                     .GetMethod(nameof(EcsWorld.IsSame),BindingFlags.NonPublic | BindingFlags.Instance)?
                     .MakeGenericMethod(_cashedComponentTypes[i])
                     .Invoke(_ecsWorld, new object[] { _entityId, componentValue});
                 
-                if (result != null && (shouldRepaint =! (bool)result))
+                if (result != null && (shouldRepaint = !(bool)result))
                 {
                     var typeValue = _ecsWorld
                         .GetType()
@@ -122,10 +127,13 @@ namespace Secs.Debug
 
                     _cashedComponents[i] = typeValue;
                 }
-            }
-            
-            if(shouldRepaint)
+
+                if (!shouldRepaint) 
+                    continue;
+                
                 Repaint();
+                return;
+            }
         }
         public override void OnInspectorGUI()
         {
@@ -164,7 +172,40 @@ namespace Secs.Debug
                 }
             }
         }
- 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnComponentAddedToEntity(int entity, Type type)
+        {
+            if(entity != this._entityId)
+                return;
+
+            var typeValue = _ecsWorld
+                .GetType()
+                .GetMethod(nameof(EcsWorld.GetItem),BindingFlags.NonPublic | BindingFlags.Instance)?
+                .MakeGenericMethod(type)
+                .Invoke(_ecsWorld, new object[] { _entityId,});
+            
+            if (typeValue == null) 
+                return;
+            
+            AdjustBufferSize();
+            
+            _cashedComponents[_numberOfComponents] = typeValue;
+            _cashedComponentTypes[_numberOfComponents] = type;
+            _numberOfComponents++;
+    
+            Repaint();
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnComponentDeletedToEntity(int entity, Type type)
+        {
+            if(entity != this._entityId)
+                return;
+            
+            InitComponents();
+            Repaint();
+        }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitComponents()
@@ -190,25 +231,31 @@ namespace Secs.Debug
                 
                 if (typeValue == null) 
                     continue;
-                
-                if (_numberOfComponents >= _maximumNumberOfComponents)
-                {
-                    _maximumNumberOfComponents += _maximumNumberOfComponents / 2;
-                        
-                    var cashedComponents = _cashedComponents;
-                    var cashedComponentTypes = _cashedComponentTypes;
 
-                    _cashedComponents = new object[_maximumNumberOfComponents];
-                    _cashedComponentTypes = new Type[_maximumNumberOfComponents];
-                        
-                    cashedComponents.CopyTo(_cashedComponents,0);
-                    cashedComponentTypes.CopyTo(_cashedComponentTypes,0);
-                }
+                AdjustBufferSize();
                 
                 _cashedComponents[_numberOfComponents] = typeValue;
                 _cashedComponentTypes[_numberOfComponents] = type;
                 _numberOfComponents++;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AdjustBufferSize()
+        {
+            if (_numberOfComponents < _maximumNumberOfComponents) 
+                return;
+            
+            _maximumNumberOfComponents += _maximumNumberOfComponents / 2;
+                        
+            var cashedComponents = _cashedComponents;
+            var cashedComponentTypes = _cashedComponentTypes;
+
+            _cashedComponents = new object[_maximumNumberOfComponents];
+            _cashedComponentTypes = new Type[_maximumNumberOfComponents];
+                        
+            cashedComponents.CopyTo(_cashedComponents,0);
+            cashedComponentTypes.CopyTo(_cashedComponentTypes,0);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -13,6 +13,7 @@ namespace Secs
 		private event Action OnRunFired;
 		private event Action OnDisposeFired;
 		
+ 
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
@@ -32,6 +33,10 @@ namespace Secs
 			if(ecsSystem is IEcsDisposeSystem disposeSystems) 
 				OnDisposeFired += disposeSystems.OnDispose;
 
+			EcsReactiveSystem reactiveSystem;
+			if((reactiveSystem = ecsSystem as EcsReactiveSystem)!=null)
+				reactiveSystem.Init(_world);
+			
 			return this;
 		}
 

@@ -13,7 +13,6 @@ namespace Secs
 		private event Action OnRunFired;
 		private event Action OnDisposeFired;
 		
- 
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;

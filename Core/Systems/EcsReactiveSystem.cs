@@ -1,59 +1,66 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-    public abstract class EcsReactiveSystem : IEcsSystem /*: IEcsReactiveSystem*/
-    {   
+    public abstract class EcsReactiveSystem : IEcsReactiveSystem
+    {
+        protected enum ComponentReactiveState
+        {
+            ComponentAdded,
+            ComponentRemoved,
+            ComponentAddedOrRemoved
+        }
+        
         private EcsWorld _ecsWorld;
-        private IEcsReactiveSystem.ComponentReactiveState _componentReactiveState;
+        private ComponentReactiveState _componentReactiveState;
         private EcsFilter _filter;
         private Type _observeType;
-        private bool _activated; 
+        private bool _activated;
+        
         internal void Init(EcsWorld ecsWorld)
         {
             _ecsWorld = ecsWorld;
-            _componentReactiveState = ObserveOn();
+            _componentReactiveState = ObserveOnState();
             _filter = CreateFilter(in _ecsWorld);
-            _observeType = ObserveType();
+            _observeType = ObserveOnType();
+            
             Activate();
         }
         
-        private void OnComponentAddedToEntity(int i, Type type)
+        private void OnComponentAddedToEntity(int entityId, Type type) => OnComponentAction(entityId, type);
+        private void OnComponentDeletedFromEntity(int entityId, Type type) => OnComponentAction(entityId, type);
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnComponentAction(int entityId, Type type)
         {
             if(type != _observeType)
                 return;
 
-            if (!_filter.HasEntity(i))
+            if (!_filter.HasEntity(entityId))
                 return;
 
-            OnExecute();
+            OnExecute(in entityId);
+            
         }
         
-        private void OnComponentDeletedFromEntity(int i, Type type)
-        {
-            if(type != _observeType)
-                return;
-
-            if (!_filter.HasEntity(i))
-                return;
-
-            OnExecute();
-        }
+        protected abstract EcsFilter CreateFilter(in EcsWorld ecsWorld);
+        protected abstract Type ObserveOnType();
+        protected abstract void OnExecute(in int entityId);
+        protected abstract ComponentReactiveState ObserveOnState();
         
-        
-        public void Clear()
-        {
-         
-        }
         public void Activate()
         {
             if(_activated)
                 return;
             
-            if(_componentReactiveState is IEcsReactiveSystem.ComponentReactiveState.ComponentAdded or IEcsReactiveSystem.ComponentReactiveState.Both )
+            if(_ecsWorld == null)
+                return;
+            
+            if(_componentReactiveState is ComponentReactiveState.ComponentAdded or ComponentReactiveState.ComponentAddedOrRemoved )
                 _ecsWorld.OnComponentAddedToEntity += OnComponentAddedToEntity;
             
-            if(_componentReactiveState is IEcsReactiveSystem.ComponentReactiveState.ComponentRemoved or IEcsReactiveSystem.ComponentReactiveState.Both )
+            if(_componentReactiveState is ComponentReactiveState.ComponentRemoved or ComponentReactiveState.ComponentAddedOrRemoved )
                 _ecsWorld.OnComponentDeletedFromEntity += OnComponentDeletedFromEntity;
 
             _activated = true;
@@ -64,21 +71,19 @@ namespace Secs
             if(!_activated)
                 return;
             
-            if(_componentReactiveState is IEcsReactiveSystem.ComponentReactiveState.ComponentAdded or IEcsReactiveSystem.ComponentReactiveState.Both )
+            if(_ecsWorld == null)
+                return;
+            
+            if(_componentReactiveState is ComponentReactiveState.ComponentAdded or ComponentReactiveState.ComponentAddedOrRemoved )
                 _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
             
-            if(_componentReactiveState is IEcsReactiveSystem.ComponentReactiveState.ComponentRemoved or IEcsReactiveSystem.ComponentReactiveState.Both )
+            if(_componentReactiveState is ComponentReactiveState.ComponentRemoved or ComponentReactiveState.ComponentAddedOrRemoved )
                 _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedFromEntity;
 
             _activated = false;
         }
         
-        protected abstract EcsFilter CreateFilter(in EcsWorld ecsWorld);
-        protected abstract Type ObserveType();
-        public abstract void OnExecute();
-        protected abstract IEcsReactiveSystem.ComponentReactiveState ObserveOn();
         
-
-        /*~EcsReactiveSystem() => this.Deactivate();*/
+        ~EcsReactiveSystem() => this.Deactivate();
     }
 }

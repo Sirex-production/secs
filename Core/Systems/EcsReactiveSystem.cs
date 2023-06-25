@@ -22,7 +22,7 @@ namespace Secs
         {
             _ecsWorld = ecsWorld;
             _componentReactiveState = ObserveOnState();
-            _filter = CreateFilter(in _ecsWorld);
+            _filter = ObserveFilter(in _ecsWorld);
             _observeType = ObserveOnType();
             
             Activate();
@@ -50,7 +50,7 @@ namespace Secs
             
         }
         
-        protected virtual EcsFilter CreateFilter(in EcsWorld ecsWorld) => null;
+        protected virtual EcsFilter ObserveFilter(in EcsWorld ecsWorld) => null;
         protected abstract Type ObserveOnType();
         protected abstract void OnExecute(in int entityId);
         protected abstract ComponentReactiveState ObserveOnState();

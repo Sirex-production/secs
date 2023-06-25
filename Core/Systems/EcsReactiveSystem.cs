@@ -50,7 +50,7 @@ namespace Secs
             
         }
         
-        protected abstract EcsFilter CreateFilter(in EcsWorld ecsWorld);
+        protected virtual EcsFilter CreateFilter(in EcsWorld ecsWorld) => null;
         protected abstract Type ObserveOnType();
         protected abstract void OnExecute(in int entityId);
         protected abstract ComponentReactiveState ObserveOnState();

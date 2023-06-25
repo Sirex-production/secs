@@ -37,6 +37,12 @@ namespace Secs
             if(type != _observeType)
                 return;
 
+            if (_filter == null)
+            {
+                OnExecute(in entityId);
+                return;
+            }
+            
             if (!_filter.HasEntity(entityId))
                 return;
 

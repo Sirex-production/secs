@@ -8,11 +8,6 @@ namespace Secs
            return (T) GetPool<T>().GetItem(entity);
         }
         
-        internal bool HasItem<T>(int entity) where T : struct, IEcsComponent
-        {
-            return GetPool<T>().HasComponent(entity);
-        }
-        
         internal void ReplaceItem<T>(int entity, T newValue) where T : struct, IEcsComponent
         {
             GetPool<T>().ReplaceComponent(entity, newValue);

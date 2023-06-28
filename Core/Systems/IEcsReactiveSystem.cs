@@ -4,7 +4,19 @@ namespace Secs
 {
     public interface IEcsReactiveSystem : IEcsSystem
     {
-        public void Activate();
-        public void Deactivate();
+        
+        public enum ComponentReactiveState
+        {
+            ComponentAdded,
+            ComponentRemoved,
+            ComponentAddedOrRemoved
+        }
+
+        public EcsFilter ObserveFilter(in EcsWorld ecsWorld);
+        public Type ObserveOnType();
+        public void OnExecute(in int entityId);
+
+        public ComponentReactiveState ObserveOnState();
+        
     }
 }

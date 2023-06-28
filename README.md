@@ -168,7 +168,7 @@ public sealed class DeletePLayer : IEcsDisposeSystem
 ### Reactive system
 Type of systems that can be executed only when a specific action (removing or adding component) happens.
 ```csharp
-public sealed class DisposeEnemy : EcsReactiveSystem
+public sealed class DisposeEnemy : IEcsReactiveSystem
 {
         //Filter should be used to limit a range of the system 
         //If it's set to null, it will detect each change.

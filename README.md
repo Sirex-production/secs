@@ -170,9 +170,9 @@ Type of systems that can be executed only when a specific action (removing or ad
 ```csharp
 public sealed class DisposeEnemy : EcsReactiveSystem
 {
-    //Filter should be used to limit a range of the system 
-    //By default it's set to null - it does not limit a domain (detects each change corresponding to observed type)
-	protected override EcsFilter ObserveFilter(in EcsWorld ecsWorld)
+        //Filter should be used to limit a range of the system 
+        //If it's set to null, it will detect each change.
+	public EcsFilter ObserveFilter(in EcsWorld ecsWorld)
         {
             EcsMatcher enemyMatcher = EcsMatcher
 				.Include
@@ -183,22 +183,22 @@ public sealed class DisposeEnemy : EcsReactiveSystem
 				.End();
             
      
-            return world.GetFilter(enemyMatcher);
+            return ecsWorld.GetFilter(enemyMatcher);
         }
         
         //The component that its change will trigger the system
-        protected override Type ObserveOnType()
+        public Type ObserveOnType()
         {
             return typeof(IsDeadCmp);
         }
 
-        protected override void OnExecute(in int entityId)
+        public void OnExecute(in int entityId)
         {
             //Dispose enemy
         }
         
       
-        protected override ComponentReactiveState ObserveOnState()
+        public IEcsReactiveSystem.ComponentReactiveState ObserveOnState()
         {
             return ComponentReactiveState.ComponentAdded;
         }

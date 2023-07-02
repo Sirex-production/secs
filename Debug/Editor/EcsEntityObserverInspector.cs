@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Secs.Debug;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,20 +18,20 @@ namespace Secs.Debug
         
         private Type[] _cashedComponentTypes = new Type[_maximumNumberOfComponents];
         private object[] _cashedComponents = new object[_maximumNumberOfComponents];
-        private int _numberOfComponents = 0;
+        private int _numberOfComponents;
         
-        private EcsEntityObserver _entityObserver = null;
+        private EcsEntityObserver _entityObserver;
         private int _entityId = -1;
-        private EcsWorld _ecsWorld = null;
+        private EcsWorld _ecsWorld;
 
         private readonly Dictionary<string, Type> _popupStringToTypeDiction = new();
         private IEnumerable<Type> _cmpTypes; 
-        private int _popupIndex = 0;
+        private int _popupIndex;
         private string[] _popupOptions;
         private object _popupObject;
 
-        private float _refresh_timer = 0.3f;
-        private bool _isEntityDead = false;
+        private float _refreshTimer = 0.3f;
+        private bool _isEntityDead;
         private void Awake()
         {
             var list = new List<string>();
@@ -70,12 +69,20 @@ namespace Secs.Debug
             var cmpType = _popupStringToTypeDiction[_popupOptions[_popupIndex]];
             _popupObject = Activator.CreateInstance(cmpType);
 
-            _refresh_timer = 0f;
+            _refreshTimer = 0f;
             EditorApplication.update += OnUpdate;
+            _ecsWorld.OnComponentAddedToEntity += OnComponentAddedToEntity;
+            _ecsWorld.OnComponentDeletedFromEntity += OnComponentDeletedToEntity;
         }
 
         private void OnDisable()
         {
+            if(_ecsWorld != null)
+            {
+                _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
+                _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedToEntity;
+            }
+            
             _entityObserver = null;
             _entityId = -1;
             _ecsWorld = null;
@@ -83,15 +90,15 @@ namespace Secs.Debug
             
             EditorApplication.update -= OnUpdate;
         }
-
+        
         private void OnUpdate()
         {
-            _refresh_timer += Time.deltaTime;
+            _refreshTimer += Time.deltaTime;
             
-            if(_refresh_timer < REFRESH_RATE)
+            if(_refreshTimer < REFRESH_RATE)
                 return;
             
-            _refresh_timer = 0f;
+            _refreshTimer = 0f;
 
             if (!_ecsWorld.AliveEntities.Contains(_entityId))
             {
@@ -105,14 +112,14 @@ namespace Secs.Debug
             for (int i = 0; i < _numberOfComponents; i++)
             {
                 ref var componentValue = ref _cashedComponents[i];
-
+                
                 var result = _ecsWorld
                     .GetType()
                     .GetMethod(nameof(EcsWorld.IsSame),BindingFlags.NonPublic | BindingFlags.Instance)?
                     .MakeGenericMethod(_cashedComponentTypes[i])
-                    .Invoke(_ecsWorld, new object[] { _entityId, componentValue});
+                    .Invoke(_ecsWorld, new [] { _entityId, componentValue});
                 
-                if (result != null && (shouldRepaint =! (bool)result))
+                if (result != null && (shouldRepaint = !(bool)result))
                 {
                     var typeValue = _ecsWorld
                         .GetType()
@@ -122,10 +129,13 @@ namespace Secs.Debug
 
                     _cashedComponents[i] = typeValue;
                 }
-            }
-            
-            if(shouldRepaint)
+
+                if (!shouldRepaint) 
+                    continue;
+                
                 Repaint();
+                return;
+            }
         }
         public override void OnInspectorGUI()
         {
@@ -164,7 +174,40 @@ namespace Secs.Debug
                 }
             }
         }
- 
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnComponentAddedToEntity(int entity, Type type)
+        {
+            if(entity != this._entityId)
+                return;
+
+            var typeValue = _ecsWorld
+                .GetType()
+                .GetMethod(nameof(EcsWorld.GetItem),BindingFlags.NonPublic | BindingFlags.Instance)?
+                .MakeGenericMethod(type)
+                .Invoke(_ecsWorld, new object[] { _entityId,});
+            
+            if (typeValue == null) 
+                return;
+            
+            AdjustBufferSize();
+            
+            _cashedComponents[_numberOfComponents] = typeValue;
+            _cashedComponentTypes[_numberOfComponents] = type;
+            _numberOfComponents++;
+    
+            Repaint();
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void OnComponentDeletedToEntity(int entity, Type type)
+        {
+            if(entity != this._entityId)
+                return;
+            
+            InitComponents();
+            Repaint();
+        }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void InitComponents()
@@ -190,25 +233,31 @@ namespace Secs.Debug
                 
                 if (typeValue == null) 
                     continue;
-                
-                if (_numberOfComponents >= _maximumNumberOfComponents)
-                {
-                    _maximumNumberOfComponents += _maximumNumberOfComponents / 2;
-                        
-                    var cashedComponents = _cashedComponents;
-                    var cashedComponentTypes = _cashedComponentTypes;
 
-                    _cashedComponents = new object[_maximumNumberOfComponents];
-                    _cashedComponentTypes = new Type[_maximumNumberOfComponents];
-                        
-                    cashedComponents.CopyTo(_cashedComponents,0);
-                    cashedComponentTypes.CopyTo(_cashedComponentTypes,0);
-                }
+                AdjustBufferSize();
                 
                 _cashedComponents[_numberOfComponents] = typeValue;
                 _cashedComponentTypes[_numberOfComponents] = type;
                 _numberOfComponents++;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void AdjustBufferSize()
+        {
+            if (_numberOfComponents < _maximumNumberOfComponents) 
+                return;
+            
+            _maximumNumberOfComponents += _maximumNumberOfComponents / 2;
+                        
+            var cashedComponents = _cashedComponents;
+            var cashedComponentTypes = _cashedComponentTypes;
+
+            _cashedComponents = new object[_maximumNumberOfComponents];
+            _cashedComponentTypes = new Type[_maximumNumberOfComponents];
+                        
+            cashedComponents.CopyTo(_cashedComponents,0);
+            cashedComponentTypes.CopyTo(_cashedComponentTypes,0);
         }
         
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -242,7 +291,7 @@ namespace Secs.Debug
                             .GetType()
                             .GetMethod(nameof(EcsWorld.AddItem), BindingFlags.NonPublic | BindingFlags.Instance)?
                             .MakeGenericMethod(cmpType)
-                            .Invoke(_ecsWorld, new object[]
+                            .Invoke(_ecsWorld, new []
                                 {
                                     _entityId, 
                                     _popupObject
@@ -300,7 +349,7 @@ namespace Secs.Debug
                             .GetType()
                             .GetMethod(nameof(EcsWorld.ReplaceItem), BindingFlags.NonPublic | BindingFlags.Instance)?
                             .MakeGenericMethod(type)
-                            .Invoke(_ecsWorld, new object[]
+                            .Invoke(_ecsWorld, new []
                                 {
                                     _entityId, 
                                     _cashedComponents[componentId]

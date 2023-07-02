@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using Secs.Debug;
 using UnityEngine;
@@ -10,6 +10,10 @@ namespace Secs
 #if UNITY_EDITOR
         internal List<IEcsSystem> AllSystems => _allSystems;
 #endif
+        
+        /// <summary>
+        /// Attach ECS Profiler to Scene as 'Dont Destroy On Load' Object
+        /// </summary>
         public void AttachProfiler()
         {
 #if UNITY_EDITOR
@@ -20,6 +24,9 @@ namespace Secs
 #endif    
         }
 
+        /// <summary>
+        /// Release ECS Profiler
+        /// </summary>
         public void ReleaseProfiler()
         {
 #if UNITY_EDITOR            

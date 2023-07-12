@@ -70,7 +70,13 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RegisterDeletedComponent<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			OnComponentDeletedFromEntity?.Invoke(entityId, typeof(T));
+			if(GetEntityComponentsTypeMask(entityId).HasAnyTypes())
+			{
+				OnComponentDeletedFromEntity?.Invoke(entityId, typeof(T));
+				return;
+			}
+			
+			DelEntity(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

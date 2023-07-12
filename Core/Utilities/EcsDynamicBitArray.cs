@@ -7,7 +7,10 @@ namespace Secs
 	public sealed class EcsDynamicBitArray
 	{
 		private BitArray _bitArrayMask;
+		private int _positiveBitsCount;
 
+		public int PositiveBitsCount => _positiveBitsCount;
+		
 		public int Length
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -30,6 +33,11 @@ namespace Secs
 			{
 				if(_bitArrayMask.Length <= index)
 					ResizeBitArray(index);
+				
+				if(value && !_bitArrayMask[index])
+					_positiveBitsCount++;
+				else if(!value && _bitArrayMask[index])
+					_positiveBitsCount--;
 
 				_bitArrayMask[index] = value;
 			}

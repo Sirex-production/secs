@@ -80,18 +80,22 @@ namespace Secs
 		internal void AddType<T>() where T : struct
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
-			
 			_bitArray[indexOfType] = true;
 		}
-		
+
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RemoveType<T>() where T : struct
 		{
 			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
-			
 			_bitArray[indexOfType] = false;
 		}
-
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal bool HasAnyTypes()
+		{
+			return _bitArray.PositiveBitsCount > 0;
+		}
+		
 #region Comparing
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool Equals(object obj)

@@ -3,40 +3,40 @@ using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public sealed partial class EcsTypeMask
+	public sealed partial class EcsTypeMask : IEquatable<EcsTypeMask>
 	{
-		private readonly EcsDynamicBitArray _bitArray;
-		
-		public EcsTypeMask()
-		{
-			_bitArray = new EcsDynamicBitArray();
-		}
+		private readonly EcsDynamicBitArray _bitArray = new();
 
+		public EcsTypeMask() { }
+		
 		public EcsTypeMask(Type[] types)
 		{
-			_bitArray = new EcsDynamicBitArray();
-			
-			if(types == null)
+			if(types == null || types == Type.EmptyTypes)
 				return;
 
 			if(types.Length < 1)
 				throw new EcsException(this, "Cannot create mask out of empty array of types");
 
-			foreach(var type in types)
-			{
-				int indexOfType = EcsTypeIndexUtility.GetIndexOfType(type);
-				_bitArray[indexOfType] = true;
-			}
+			foreach(var type in types) 
+				AddType(type);
 		}
 
+		/// <summary>
+		/// Checks if mask contains type <typeparamref name="T"/>
+		/// </summary>
+		/// <typeparam name="T">Type to check</typeparam>
+		/// <returns>TRUE if mask contains type <typeparamref name="T"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool ContainsType<T>() where T : struct
 		{
-			int indexOfType = EcsTypeIndexUtility.GetIndexOfType<T>();
-
-			return _bitArray[indexOfType];
+			return ContainsType(typeof(T));
 		}
 		
+		/// <summary>
+		/// Checks if mask contains type <paramref name="type"/>
+		/// </summary>
+		/// <param name="type">Type to check</param>
+		/// <returns>TRUE if mask contains type <paramref name="type"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool ContainsType(Type type)
 		{
@@ -45,6 +45,11 @@ namespace Secs
 			return _bitArray[indexOfType];
 		}
 		
+		/// <summary>
+		/// Checks if mask includes all types from <paramref name="ecsTypeMask"/>
+		/// </summary>
+		/// <param name="ecsTypeMask">Mask to check</param>
+		/// <returns>TURE if mask includes all types from <paramref name="ecsTypeMask"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool Includes(EcsTypeMask ecsTypeMask)
 		{
@@ -59,6 +64,11 @@ namespace Secs
 			return true;
 		}
 
+		/// <summary>
+		/// Checks if mask includes any types from <paramref name="ecsTypeMask"/>
+		/// </summary>
+		/// <param name="otherTypeMask">Mask to check</param>
+		/// <returns>TURE if mask includes any types from <paramref name="otherTypeMask"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool HasCommonTypesWith(EcsTypeMask otherTypeMask)
 		{
@@ -76,13 +86,31 @@ namespace Secs
 			return false;
 		}
 
+		/// <summary>
+		/// Adds type <typeparamref name="T"/> to mask
+		/// </summary>
+		/// <typeparam name="T">Type to add</typeparam>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void AddType<T>() where T : struct
 		{
-			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
+			AddType(typeof(T));
+		}
+		
+		/// <summary>
+		/// Adds type <paramref name="type"/> to mask
+		/// </summary>
+		/// <param name="type">Type to add</param>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		internal void AddType(Type type)
+		{
+			int indexOfType = EcsTypeIndexUtility.GetIndexOfType(type);
 			_bitArray[indexOfType] = true;
 		}
 
+		/// <summary>
+		/// Removes type <typeparamref name="T"/> from mask
+		/// </summary>
+		/// <typeparam name="T">Type to remove</typeparam>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal void RemoveType<T>() where T : struct
 		{
@@ -90,6 +118,10 @@ namespace Secs
 			_bitArray[indexOfType] = false;
 		}
 		
+		/// <summary>
+		/// Checks if mask contains any types
+		/// </summary>
+		/// <returns>TURE if mask contains any types, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal bool HasAnyTypes()
 		{
@@ -97,17 +129,16 @@ namespace Secs
 		}
 		
 #region Comparing
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool Equals(object obj)
 		{
-			if(obj is not EcsTypeMask mask)
+			if(obj is not EcsTypeMask other)
 				return false;
-
-			return Equals(mask);
+			
+			return Equals(other);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		private bool Equals(EcsTypeMask other)
+		public bool Equals(EcsTypeMask other)
 		{
 			if(other is null)
 				return false;
@@ -123,21 +154,27 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override int GetHashCode()
+		public static bool operator ==(EcsTypeMask first, EcsTypeMask second)
 		{
-			return _bitArray != null ? _bitArray.GetHashCode() : 0;
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator ==(EcsTypeMask ecsTypeMask1, EcsTypeMask ecsTypeMask2)
-		{
-			return ecsTypeMask1.Equals(ecsTypeMask2);
+			if(first is null && second is null)
+				return true;
+			
+			if(first is null || second is null)
+				return false;
+			
+			return first.Equals(second);
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool operator !=(EcsTypeMask ecsTypeMask1, EcsTypeMask ecsTypeMask2)
+		public static bool operator !=(EcsTypeMask first, EcsTypeMask second)
 		{
-			return !ecsTypeMask1.Equals(ecsTypeMask2);
+			if(first is null && second is null)
+				return true;
+			
+			if(first is null || second is null)
+				return false;
+			
+			return !first.Equals(second);
 		}
 #endregion
 	}

@@ -16,6 +16,12 @@ namespace Secs
 		private int[] _iterateEntities;
 		private bool _isEntitiesSetModified = false;
 	
+		internal EcsMatcher Matcher
+		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			get => _matcher;
+		}
+
 		public int EntitiesCount
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

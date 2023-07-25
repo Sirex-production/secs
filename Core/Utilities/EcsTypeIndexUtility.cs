@@ -14,23 +14,8 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static int GetIndexOfType(Type type)
 		{
-			if(_typeToIndex.ContainsKey(type))
-				return _typeToIndex[type];
-
-			_lastUsedIndex++;
-			_typeToIndex.Add(type, _lastUsedIndex);
-			_indexToType.Add(_lastUsedIndex, type);
-			
-			return _lastUsedIndex;
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static int GetIndexOfType<T>()
-		{
-			var type = typeof(T);
-			
-			if(_typeToIndex.ContainsKey(type))
-				return _typeToIndex[type];
+			if(_typeToIndex.TryGetValue(type, out var indexOfType))
+				return indexOfType;
 
 			_lastUsedIndex++;
 			_typeToIndex.Add(type, _lastUsedIndex);

@@ -18,7 +18,7 @@ namespace Secs
 			includeTypeMask = new EcsTypeMask(includeTypes);
 			excludeTypeMask = new EcsTypeMask(excludeTypes);
 
-			if(includeTypeMask.HasCommonTypesWith(excludeTypeMask))
+			if(includeTypeMask.HasCommonTypeWith(excludeTypeMask))
 				throw new EcsException(this, "Include types overlaps with exclude types");
 		}
 

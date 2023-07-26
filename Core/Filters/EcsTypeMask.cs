@@ -46,19 +46,24 @@ namespace Secs
 		}
 		
 		/// <summary>
-		/// Checks if mask includes all types from <paramref name="ecsTypeMask"/>
+		/// Checks if other mask has all the components present on source mask<paramref name="otherEcsMask"/>
 		/// </summary>
-		/// <param name="ecsTypeMask">Mask to check</param>
-		/// <returns>TURE if mask includes all types from <paramref name="ecsTypeMask"/>, FALSE otherwise</returns>
+		/// <param name="otherEcsMask">Other mask to check</param>
+		/// <returns>TURE if other mask has all the components present on source mask<paramref name="otherEcsMask"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal bool Includes(EcsTypeMask ecsTypeMask)
+		internal bool Includes(EcsTypeMask otherEcsMask)
 		{
-			var otherBitArray = ecsTypeMask._bitArray;
+			var otherBitArray = otherEcsMask._bitArray;
 
 			for(int i = 0; i < _bitArray.Length; i++)
 			{
-				if(!_bitArray[i] && otherBitArray[i])
-					return false;
+				//Is component present in source mask?
+				if(!_bitArray[i])
+					continue; //We dont check if type is present in other mask, since it is not present in source already, So we dont need to check that type in other mask
+
+				//Is component present in other mask?
+				if(!otherBitArray[i])
+					return false; //And so if required component is not present in other mask, we return FALSE
 			}
 
 			return true;
@@ -70,16 +75,14 @@ namespace Secs
 		/// <param name="otherTypeMask">Mask to check</param>
 		/// <returns>TURE if mask includes any types from <paramref name="otherTypeMask"/>, FALSE otherwise</returns>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal bool HasCommonTypesWith(EcsTypeMask otherTypeMask)
+		internal bool HasCommonTypeWith(EcsTypeMask otherTypeMask)
 		{
-			int longestMaskCount = Math.Max(_bitArray.Length, otherTypeMask._bitArray.Length);
+			int shortestMask = Math.Min(_bitArray.Length, otherTypeMask._bitArray.Length);
 
-			for(int i = 0; i < longestMaskCount; i++)
+			for(int i = 0; i < shortestMask; i++)
 			{
-				if(!_bitArray[i])
-					continue;
-				
-				if(_bitArray[i] == otherTypeMask._bitArray[i])
+				//If source mask and other mask both have same type at index i 
+				if(_bitArray[i] && otherTypeMask._bitArray[i])
 					return true;
 			}
 

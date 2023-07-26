@@ -60,19 +60,19 @@ namespace Secs
 
 		private void OnComponentAddedToEntity(int entityId, Type componentType)
 		{
-			if(_matcher.IsExcluded(componentType))
+			//If excluded type was added to the entity, remove it from the filter
+			if(_entities.Contains(entityId) && _matcher.IsExcluded(componentType))
 			{
 				_entities.Remove(entityId);
 				_isEntitiesSetModified = true;
 				return;
 			}
 			
+			//If added component is not included to the filter, do nothing - further actions are performed only if included type was added to the entity
 			if(!_matcher.IsIncluded(componentType))
 				return;
 
-			var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
-
-			if(entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
+			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
 				_isEntitiesSetModified = true;
@@ -81,19 +81,19 @@ namespace Secs
 
 		private void OnComponentDeletedFromEntity(int entityId, Type componentType)
 		{
-			if(_matcher.IsIncluded(componentType))
+			//If included type was deleted from the entity, remove it from the filter
+			if(_entities.Contains(entityId) && _matcher.IsIncluded(componentType))
 			{
 				_entities.Remove(entityId);
 				_isEntitiesSetModified = true;
 				return;
 			}
 
+			//If removed type is not excluded by the filter, do nothing - further actions are performed only if excluded type was removed from the entity
 			if(!_matcher.IsExcluded(componentType))
 				return;
-		
-			var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
-
-			if(entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
+			
+			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
 				_isEntitiesSetModified = true;
@@ -101,19 +101,25 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private bool EntityMatchesToTheFilterMask(in int entityId)
+		{
+			var filterIncludeMask = _matcher.includeTypeMask;
+			var filterExcludeMask = _matcher.excludeTypeMask;
+			var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
+
+			if(!filterIncludeMask.Includes(entityComponentsTypeMask))
+				return false;
+			
+			return filterExcludeMask == null || !filterExcludeMask.HasCommonTypeWith(entityComponentsTypeMask);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private void FetchAliveEntities()
 		{
 			foreach(int entityId in _world.AliveEntities)
 			{
-				var entityComponentsTypeMask = _world.GetEntityComponentsTypeMask(entityId);
-				
-				if(!entityComponentsTypeMask.Includes(_matcher.includeTypeMask))
-					continue;
-				
-				if(entityComponentsTypeMask.HasCommonTypesWith(_matcher.excludeTypeMask))
-					continue;
-				
-				_entities.Add(entityId);
+				if(EntityMatchesToTheFilterMask(entityId))
+					_entities.Add(entityId);
 			}
 		}
 #region Enumeration

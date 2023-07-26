@@ -99,7 +99,7 @@ namespace Secs
 			var filter = world.GetFilter(matcher);
 			
 			//Assert
-			IsTrue(filter.EntitiesCount == 1);
+			AreEqual(1, filter.EntitiesCount);
 			
 			foreach(int filterEntity in filter)
 			{

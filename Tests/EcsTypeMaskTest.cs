@@ -36,7 +36,7 @@ namespace Secs
 		}
 		
 		[Test]
-		public void WhenTwoMasksWereCreated_AndSecondMaskTypesIsASubsetOfFirstMaskTypes_ThenFirstMaskShouldIncludeSecondMask()
+		public void WhenTwoMasksWereCreated_AndSecondMaskDoesNotHaveAllComponentsFormFirstMask_ThenFirstMaskShouldNotIncludeSecondMask()
 		{
 			//Arrange
 			var firstTypeMask = Create.EcsTypeMaskWithTypes(typeof(CmpA), typeof(CmpB));
@@ -45,7 +45,7 @@ namespace Secs
 			//Act
 			
 			//Assert
-			IsTrue(firstTypeMask.Includes(secondTypeMask));
+			IsFalse(firstTypeMask.Includes(secondTypeMask));
 		}
 		
 		[Test]
@@ -76,6 +76,19 @@ namespace Secs
 		}
 		
 		[Test]
+		public void WhenTwoMasksAreCreated_AndSecondMaskHasMoreTypesThanFirstMask_AndSecondMaskHaveCommonTypesWithFirstMask_ThenFirstMaskShouldIncludeSecondMask()
+		{
+			//Arrange
+			var firstTypeMask = Create.EcsTypeMaskWithTypes(typeof(CmpA), typeof(CmpB));
+			var secondTypeMask = Create.EcsTypeMaskWithTypes(typeof(CmpA), typeof(CmpB), typeof(CmpC));
+			
+			//Act
+			
+			//Assert
+			IsTrue(firstTypeMask.Includes(secondTypeMask));
+		}
+		
+		[Test]
 		public void WhenTwoMasksWereCreated_AndTheyHaveAtLeastOneCommonType_ThenTheyShouldHaveCommonTypes()
 		{
 			//Arrange
@@ -85,8 +98,8 @@ namespace Secs
 			//Act
 			
 			//Assert
-			True(firstTypeMask.HasCommonTypesWith(secondTypeMask));
-			True(secondTypeMask.HasCommonTypesWith(firstTypeMask));
+			True(firstTypeMask.HasCommonTypeWith(secondTypeMask));
+			True(secondTypeMask.HasCommonTypeWith(firstTypeMask));
 		}
 
 		[Test]

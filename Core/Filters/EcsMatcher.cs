@@ -18,7 +18,7 @@ namespace Secs
 			includeTypeMask = new EcsTypeMask(includeTypes);
 			excludeTypeMask = new EcsTypeMask(excludeTypes);
 
-			if(includeTypeMask.HasCommonTypesWith(excludeTypeMask))
+			if(includeTypeMask.HasCommonTypeWith(excludeTypeMask))
 				throw new EcsException(this, "Include types overlaps with exclude types");
 		}
 
@@ -36,19 +36,6 @@ namespace Secs
 			
 			return excludeTypeMask.ContainsType(type);
 		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal bool IsSameAsIncludeMask(EcsTypeMask otherMask)
-		{
-			return includeTypeMask == otherMask;
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		internal bool IsSameAsExcludeMask(EcsTypeMask otherMask)
-		{
-			return excludeTypeMask == otherMask;
-		}
-
 #region Comparing
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public override bool Equals(object obj)
@@ -68,12 +55,6 @@ namespace Secs
 			return includeTypeMask == other.includeTypeMask && excludeTypeMask == other.excludeTypeMask;
 		}
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public override int GetHashCode()
-		{
-			return HashCode.Combine(includeTypeMask, excludeTypeMask);
-		}
-		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool operator==(EcsMatcher first, EcsMatcher second)
 		{

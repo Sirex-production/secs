@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("Tests")]
 namespace Secs
 {
 	public sealed partial class EcsWorld
@@ -15,7 +16,7 @@ namespace Secs
 
 		private readonly Dictionary<int, EcsTypeMask> _entitiesComponents;
 		private readonly Dictionary<int, object> _pools;
-		private readonly Dictionary<EcsMatcher, EcsFilter> _filters;
+		private readonly List<EcsFilter> _filters;
 
 		private int _lastEntityId = -1;
 
@@ -49,13 +50,13 @@ namespace Secs
 
 			_entitiesComponents = new Dictionary<int, EcsTypeMask>(config.world.initialAllocatedEntities);
 			_pools = new Dictionary<int, object>(config.world.initialAllocatedPools);
-			_filters = new Dictionary<EcsMatcher, EcsFilter>(config.world.initialAllocatedFilters);
+			_filters = new List<EcsFilter>(config.world.initialAllocatedFilters);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		internal EcsTypeMask GetEntityComponentsTypeMask(in int entityId)
 		{
-			if(!_entitiesComponents.ContainsKey(entityId))
+			if(!ContainsEntity(entityId))
 				throw new EcsException(this, $"Trying to get components type mask of entity {entityId} that does not exist");
 			
 			return _entitiesComponents[entityId];
@@ -78,10 +79,19 @@ namespace Secs
 			
 			DelEntity(entityId);
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool ContainsEntity(in int entityId)
+		{
+			return _entitiesComponents.ContainsKey(entityId);
+		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public bool IsEntityDead(int entityId)
 		{
+			if(!ContainsEntity(entityId))
+				throw new EcsException(this, $"Trying to manipulate non existing entity {entityId} inside world {Id}");
+
 			return _deadEntities.Contains(entityId);
 		}
 
@@ -116,8 +126,8 @@ namespace Secs
 		{
 			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
 
-			if(_pools.ContainsKey(typeIndex))
-				return (EcsPool<T>)_pools[typeIndex];
+			if(_pools.TryGetValue(typeIndex, out var foundPool))
+				return (EcsPool<T>)foundPool;
 
 			var pool = new EcsPool<T>(config.pool.initialAllocatedComponents, this);
 			_pools.Add(typeIndex, pool);
@@ -131,13 +141,16 @@ namespace Secs
 			if(ecsMatcher == null)
 				throw new EcsException(this, "Trying to get filter with null matcher");
 
-			if(_filters.ContainsKey(ecsMatcher))
-				return _filters[ecsMatcher];
+			foreach(var filter in _filters)
+			{
+				if(filter.Matcher == ecsMatcher)
+					return filter;
+			}
 
-			var filter = new EcsFilter(this, ecsMatcher);
-			_filters.Add(ecsMatcher, filter);
-
-			return filter;
+			var createdFilter = new EcsFilter(this, ecsMatcher);
+			_filters.Add(createdFilter);
+			
+			return createdFilter;
 		}
 	}
 }

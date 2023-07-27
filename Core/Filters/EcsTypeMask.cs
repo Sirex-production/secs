@@ -70,7 +70,7 @@ namespace Secs
 		}
 
 		/// <summary>
-		/// Checks if mask includes any types from <paramref name="ecsTypeMask"/>
+		/// Checks if mask includes any types from <paramref name="otherTypeMask"/>
 		/// </summary>
 		/// <param name="otherTypeMask">Mask to check</param>
 		/// <returns>TURE if mask includes any types from <paramref name="otherTypeMask"/>, FALSE otherwise</returns>

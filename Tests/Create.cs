@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Secs
+namespace Secs.Tests
 {
 	public static class Create
 	{

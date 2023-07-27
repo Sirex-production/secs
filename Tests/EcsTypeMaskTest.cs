@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using static NUnit.Framework.Assert;
 
-namespace Secs
+namespace Secs.Tests
 {
 	public sealed class EcsTypeMaskTest
 	{

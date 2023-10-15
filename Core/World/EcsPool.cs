@@ -27,7 +27,8 @@ namespace Secs
 		{
 			if (!HasComponent(entityId))
 				return;
-				
+			
+			(_componentsBuffer[entityId] as IEcsDestroyable)?.OnDestroy();
 			_componentsBuffer[entityId] = default;
 			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
 		}

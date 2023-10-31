@@ -4,16 +4,18 @@ namespace Secs.Tests
 {
 	public static class Create
 	{
+#region TypeMasks
+
 		public static EcsTypeMask EcsTypeMaskWithTypes(params Type[] componentTypes)
 		{
 			return new EcsTypeMask(componentTypes);
 		}
-		
+
 		public static EcsTypeMask EcsTypeMaskWithEmptyTypes()
 		{
 			return new EcsTypeMask(Type.EmptyTypes);
 		}
-		
+
 		public static EcsTypeMask EcsTypeMaskEmpty()
 		{
 			return new EcsTypeMask();
@@ -23,6 +25,10 @@ namespace Secs.Tests
 		{
 			return null;
 		}
+
+#endregion
+
+#region Matchers
 
 		public static EcsMatcher EcsMatcherWithIncludeTypes(params Type[] types)
 		{
@@ -37,7 +43,7 @@ namespace Secs.Tests
 				.Include(null)
 				.End();
 		}
-		
+
 		public static EcsMatcher EcsMatcherWithIncludedAndExcludedTypes(Type[] includedTypes, Type[] excludedTypes)
 		{
 			return EcsMatcher
@@ -50,7 +56,11 @@ namespace Secs.Tests
 		{
 			return null;
 		}
-		
+
+#endregion
+
+#region Filter
+
 		public static (EcsWorld world, EcsFilter filter) EcsFilterWithItsWorld(EcsMatcher matcher)
 		{
 			var world = new EcsWorld();
@@ -58,9 +68,15 @@ namespace Secs.Tests
 			return (world, filter);
 		}
 
+#endregion
+
+#region World
+
 		public static EcsWorld EcsWorld()
 		{
 			return new EcsWorld();
 		}
+
+#endregion
 	}
 }

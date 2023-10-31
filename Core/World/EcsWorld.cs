@@ -15,7 +15,7 @@ namespace Secs
 		private readonly Stack<int> _deadEntities;
 
 		private readonly Dictionary<int, EcsTypeMask> _entitiesComponents;
-		private readonly Dictionary<int, object> _pools;
+		private readonly Dictionary<Type, object> _pools;
 		private readonly List<EcsFilter> _filters;
 
 		private int _lastEntityId = -1;
@@ -49,7 +49,7 @@ namespace Secs
 			_deadEntities = new Stack<int>(config.world.initialAllocatedEntities);
 
 			_entitiesComponents = new Dictionary<int, EcsTypeMask>(config.world.initialAllocatedEntities);
-			_pools = new Dictionary<int, object>(config.world.initialAllocatedPools);
+			_pools = new Dictionary<Type, object>(config.world.initialAllocatedPools);
 			_filters = new List<EcsFilter>(config.world.initialAllocatedFilters);
 		}
 
@@ -120,21 +120,39 @@ namespace Secs
 			_deadEntities.Push(entityId);
 			OnEntityDeleted?.Invoke(entityId);
 		}
-
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EcsPool<T> GetPool<T>() where T : struct, IEcsComponent
 		{
-			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(typeof(T));
+			var type = typeof(T);
 
-			if(_pools.TryGetValue(typeIndex, out var foundPool))
+			if(_pools.TryGetValue(type, out var foundPool))
 				return (EcsPool<T>)foundPool;
 
 			var pool = new EcsPool<T>(config.pool.initialAllocatedComponents, this);
-			_pools.Add(typeIndex, pool);
+			_pools.Add(type, pool);
 
 			return pool;
 		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public object GetPool(Type cmpType)
+		{
+			if(cmpType.IsAssignableFrom(typeof(IEcsComponent)))
+				throw new EcsException(this, $"Trying to get pool of wrong component type ({cmpType})");
+			
+			if(!cmpType.IsValueType)
+				throw new EcsException(this, $"Trying to get pool of component that is not struct ({cmpType})");
+			
+			if(_pools.TryGetValue(cmpType, out var foundPool))
+				return foundPool;
+			
+			var pool = Activator.CreateInstance(typeof(EcsPool<>).MakeGenericType(cmpType), config.pool.initialAllocatedComponents, this);
+			_pools.Add(cmpType, pool);
 
+			return pool;
+		}
+		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public EcsFilter GetFilter(EcsMatcher ecsMatcher)
 		{

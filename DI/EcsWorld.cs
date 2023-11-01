@@ -19,16 +19,15 @@ namespace Secs
 				throw new ArgumentException("Pool can not be created with non struct component");
 
 			var bindingFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
-			int typeIndex = EcsTypeIndexUtility.GetIndexOfType(componentType);
 
-			if (_pools.ContainsKey(typeIndex))
-				return _pools[typeIndex];
+			if (_pools.TryGetValue(componentType, out var foundPool))
+				return foundPool;
 
 			var poolType = typeof(EcsPool<>);
 			var poolTypeWithGenericParameter = poolType.MakeGenericType(componentType);
 			var poolInstance = Activator.CreateInstance(poolTypeWithGenericParameter, bindingFlags, null, new object[] {config.pool.initialAllocatedComponents, this}, null);
 			
-			_pools.Add(typeIndex, poolInstance);
+			_pools.Add(componentType, poolInstance);
 
 			return poolInstance;
 		}

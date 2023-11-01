@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+#pragma warning disable CS0660, CS0661
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
 
 namespace Secs
 {

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace Secs
 {
-	public sealed partial class EcsPool<T> : IDisposable where T : struct, IEcsComponent
+	public sealed partial class EcsPool<T> where T : struct, IEcsComponent
 	{
 		private readonly EcsWorld _world;
 		
@@ -53,6 +53,28 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public IEcsComponent GetComponentCopy(in int entityId)
+		{
+			return GetComponent(entityId);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetComponent(in int entityId, in T cmp)
+		{
+			ref var cmpRef = ref GetComponent(entityId);
+			cmpRef = cmp;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void SetComponent(in int entityId, IEcsComponent cmp)
+		{
+			if(cmp is not T cmpT)
+				throw new EcsException(this, $"Trying to set component of type {cmp.GetType()} to pool of type {typeof(T)}");
+			
+			SetComponent(entityId, cmpT);
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T AddComponent(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
@@ -68,6 +90,15 @@ namespace Secs
 			_world.RegisterAddedComponent<T>(entityId);
 
 			return ref _componentsBuffer[entityId];
+		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void AddComponent(in int entityId, IEcsComponent cmp)
+		{
+			if(cmp is not T cmpT)
+				throw new EcsException(this, $"Trying to add component of type {cmp.GetType()} to pool of type {typeof(T)}");
+
+			AddComponent(entityId) = cmpT;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

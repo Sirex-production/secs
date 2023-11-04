@@ -105,7 +105,7 @@ ref ApplyDamageCmp applyDamageCmp = ref applyDamageCmpPool.GetComponent(playerEn
 healthCmp.currentHealth -= applyDamageCmp.damage;
 
 // Deleting component from the entity	
-applyDamageCmpPool.DelComponent(playerCmpPool);
+applyDamageCmpPool.DelComponent(playerEntity);
 
 // Adding component to the entity
 isHappyCmpPool.AddComponent(playerEntity);
@@ -113,6 +113,37 @@ isHappyCmpPool.AddComponent(playerEntity);
 if(isHungryCmpPool.HasComponent(playerEntity))
     Print("Player is hungry :(");
 ```
+
+Note that there is also possibility to work with non generic API as well. 
+But keep in mind that it is slower than working with generic methods and should be avoided when possible.
+
+Here is same example but with non generic API
+```csharp
+EcsPool<IsHappyCmp> isHappyCmpPool = (EcsPool<IsHappyCmp>)world.GetPool(typeof(IsHappyCmp));
+EcsPool<HealthCmp> healthCmpPool = (EcsPool<HealthCmp>)world.GetPool(typeof(HealthCmp))
+EcsPool<ApplyDamageCmp> applyDamageCmpPool = (EcsPool<ApplyDamageCmp>)world.GetPool(typeof(ApplyDamageCmp));
+EcsPool<IsHungryCmp> isHungryCmpPool = (EcsPool<IsHungryCmp>)world.GetPool(typeof(IsHungryCmp))
+
+// Gettings components from the entity. Note that in that case you can not get component by reference
+// and have to manually cast to correct component type.
+HealthCmp healthCmpCopy = (HealthCmp)healthCmpPool.GetComponentCopy(playerEntity);
+ApplyDamageCmp applyDamageCmpCopy = (HealthCmp)applyDamageCmpPool.GetComponent(playerEntity);
+
+// Mutating component's data (Don't forget to set component back in order to apply changes)
+healthCmpCopy.currentHealth -= applyDamageCmp.damage;
+healthCmpPool.SetComponent(playerEntity, healthCmpCopy);
+
+// Deleting component from the entity	
+applyDamageCmpPool.DelComponent(playerEntity);
+
+// Adding component to the entity
+IsHappyCmp isHappyCmp = new IsHappyCmp();
+isHappyCmpPool.AddComponent(playerEntity, isHappyCmp);
+
+if(isHungryCmpPool.HasComponent(playerEntity))
+    Print("Player is hungry :(");
+```
+As you can see such approach is less convenient and has less compile time safety. So try to avoid it when possible.
 
 ## Systems
 Is a container for logic for processing filtered entities. 

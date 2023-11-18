@@ -28,7 +28,6 @@ namespace Secs
 			if (!HasComponent(entityId))
 				return;
 			
-			(_componentsBuffer[entityId] as IEcsDestroyable)?.OnDestroy();
 			_componentsBuffer[entityId] = default;
 			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
 		}
@@ -86,6 +85,7 @@ namespace Secs
 			if (entityId >= _componentsBuffer.Length)
 				GrowBuffer(entityId);
 			
+			(_componentsBuffer[entityId] as IEcsInitializable)?.Initialize();
 			_world.GetEntityComponentsTypeMask(entityId).AddType<T>();
 			_world.RegisterAddedComponent<T>(entityId);
 
@@ -110,6 +110,7 @@ namespace Secs
 			if (!HasComponent(entityId))
 				throw new EcsException(this, $"Trying to delete component that entity {entityId} does not have");
 			
+			(_componentsBuffer[entityId] as IEcsDestroyable)?.OnDestroy();
 			_componentsBuffer[entityId] = default;
 			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
 			_world.RegisterDeletedComponent<T>(entityId);

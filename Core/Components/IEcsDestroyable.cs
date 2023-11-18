@@ -1,6 +1,6 @@
 ﻿namespace Secs
 {
-    public interface IEcsDestroyable : IEcsComponent
+    public interface IEcsDestroyable  
     {
         public void OnDestroy();
     }

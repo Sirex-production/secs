@@ -119,7 +119,10 @@ namespace Secs
 			foreach(int entityId in _world.AliveEntities)
 			{
 				if(EntityMatchesToTheFilterMask(entityId))
+				{
 					_entities.Add(entityId);
+					_isEntitiesSetModified = true;
+				}
 			}
 		}
 #region Enumeration

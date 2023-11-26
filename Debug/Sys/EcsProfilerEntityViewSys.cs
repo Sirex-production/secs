@@ -1,7 +1,11 @@
 ﻿#if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Secs.Debug 
 {
@@ -23,10 +27,13 @@ namespace Secs.Debug
             _ecsWorld.OnEntityCreated += CreateNewObserver;
             _ecsWorld.OnEntityDeleted += DeactivateObserver;
             
+            _ecsWorld.OnComponentAddedToEntity += OnComponentAddedToEntity;
+            _ecsWorld.OnComponentDeletedFromEntity += OnComponentDeletedFromEntity;
+            
+            
             foreach (var ecsWorldAliveEntity in _ecsWorld.AliveEntities)
                 CreateNewObserver(ecsWorldAliveEntity);
         }
-        
         private void CreateWorld()
         {
             _worldGameObject = new GameObject($"World");
@@ -64,8 +71,51 @@ namespace Secs.Debug
             _entityObservers[entity].gameObject.SetActive(false);
         }
         
+        
+        private void OnComponentDeletedFromEntity(int entityId, Type _)
+        {
+            RebuildGOName(entityId);
+        }
+
+        private void OnComponentAddedToEntity(int entityId, Type _)
+        {
+            RebuildGOName(entityId);
+        }
+
+        private void RebuildGOName(int entityId)
+        {
+            var sb = new StringBuilder();
+            var types = _ecsWorld.GetEntityComponentsTypeMask(entityId).GetComponents();
+
+            var enumerable = types as Type[] ?? types.ToArray();
+            if (!enumerable.Any())
+            {
+                _entityObservers[entityId].gameObject.name = $"Entity {entityId}";
+                return;
+            }
+            
+            sb.Append($"Entity {entityId}: ");
+
+            foreach (var type in enumerable)
+            {
+                sb.Append($"{type.Name} ");
+            }
+                
+            _entityObservers[entityId].gameObject.name = sb.ToString();
+        }
+        
+        
         public void OnDispose()
         {
+            if (_ecsWorld != null)
+            {
+                _ecsWorld.OnEntityCreated -= CreateNewObserver;
+                _ecsWorld.OnEntityDeleted -= DeactivateObserver;
+            
+                _ecsWorld.OnComponentAddedToEntity -= OnComponentAddedToEntity;
+                _ecsWorld.OnComponentDeletedFromEntity -= OnComponentDeletedFromEntity;
+            }
+
             Object.Destroy(_worldGameObject);
             _ecsWorld = null;
             _worldGameObject = null;

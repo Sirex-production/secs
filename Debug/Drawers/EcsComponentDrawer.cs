@@ -30,8 +30,7 @@ namespace Secs.Debug
             new EnumDrawer(),
             new ListDrawer(),
             new UnityObjectDrawer(),
-            new InterfaceDrawer(),
-            new ObjectDrawer(),
+            new ObjectDrawer()
             
         };
         

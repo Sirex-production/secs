@@ -8,6 +8,7 @@ namespace Secs
            return (T) GetPool<T>().GetItem(entity);
         }
         
+        
         internal void ReplaceItem<T>(int entity, T newValue) where T : struct, IEcsComponent
         {
             GetPool<T>().ReplaceComponent(entity, newValue);

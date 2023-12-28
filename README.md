@@ -2,6 +2,26 @@
 
 SECS is a lightweight, C# engine-independent Entity Component System framework based on `structs`
 
+# Table of contents
+- [Framework overview](#framework-overview)
+  - [Entity](#entity)
+  - [Component](#component)
+  - [World](#world)
+  - [Matcher](#matcher)
+  - [Filter](#filter)
+  - [Pool](#pool)
+  - [Systems](#systems)
+    - [Init system](#init-system)
+    - [Run system](#run-system)
+    - [Dispose system](#dispose-system)
+    - [Combined systems](#combined-systems)
+- [Setup](#setup)
+  - [Setup script](#setup-script)
+    - [Unity example](#unity-example)
+  - [Define symbols](#define-symbols)
+    - [SECS_ENABLE_EVENTS](#secs_enable_events)
+
+# Framework overview
 ## Entity
 Entity is an `int` ID that serves as a container for [components](#component). 
 ```csharp
@@ -219,8 +239,8 @@ public sealed class PlayerGodSystem : IEcsInitSystem, IEcsRunSystem, IEcsDispose
 ```
 
 # Setup
-
-## Unity example
+## Setup script
+### Unity example
 ```csharp
 public sealed class EcsSetup : MonoBehaviour
 {
@@ -259,5 +279,30 @@ public sealed class EcsSetup : MonoBehaviour
 	}
 }
 ```
+## Define symbols
+Some features can be enabled or disabled by defining preprocessor symbols. Usually these features are optional functionality
+that core module can provide.
 
+### SECS_ENABLE_EVENTS
+Enables events functionality. Allows to subscribe to the events that are fired by the framework when some events occur:
 
+```csharp
+#define SECS_ENABLE_EVENTS
+
+var world = new EcsWorld();
+var cmpPool = world.GetPool<Cmp>();
+var filter = world.GetFilter(EcsMatcher.Include(typeof(Cmp)).End());
+
+world.OnEntityCreated += OnEntityCreated
+world.OnEntityDeleted += OnEntityDeleted
+world.OnComponentAddedToEntity += OnComponentAddedToEntity;
+world.OnComponentDeletedFromEntity += OnComponentDeletedFromEntity;
+
+cmpPool.OnComponentAdded += OnComponentAdded;
+cmpPool.OnComponentDeleted += OnComponentDeleted;
+cmpPool.OnComponentGet += OnComponentGet;
+cmpPool.OnComponentSet += OnComponentSet;
+
+filter.OnEntityAdded += OnEntityAdded;
+filter.OnEntityRemoved += OnEntityRemoved;
+```                                             

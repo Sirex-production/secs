@@ -20,12 +20,20 @@ namespace Secs
 
 		private int _lastEntityId = -1;
 
+		internal IReadOnlyCollection<int> AliveEntities => _aliveEntities;
+		
+#if SECS_ENABLE_EVENTS
+		public event Action<int> OnEntityCreated;
+		public event Action<int> OnEntityDeleted;
+		public event Action<int, Type> OnComponentAddedToEntity;
+		public event Action<int, Type> OnComponentDeletedFromEntity;
+#else
 		internal event Action<int> OnEntityCreated;
 		internal event Action<int> OnEntityDeleted;
 		internal event Action<int, Type> OnComponentAddedToEntity;
 		internal event Action<int, Type> OnComponentDeletedFromEntity;
-
-		internal IReadOnlyCollection<int> AliveEntities => _aliveEntities;
+#endif
+		
 		public string Id
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -15,19 +15,24 @@ namespace Secs
 		
 		private int[] _iterateEntities;
 		private bool _isEntitiesSetModified = false;
-	
+		
 		internal EcsMatcher Matcher
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => _matcher;
 		}
-
+		
+#if SECS_ENABLE_EVENTS
+		public event Action<int> OnEntityAdded;
+		public event Action<int> OnEntityRemoved;
+#endif
+		
 		public int EntitiesCount
 		{
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			get => _entities.Count;
 		}
-
+		
 		public EcsFilter(EcsWorld world, EcsMatcher matcher)
 		{
 			_world = world ?? throw new ArgumentNullException(nameof(world));
@@ -54,6 +59,9 @@ namespace Secs
 			if(_world.IsEntityDead(entityId))
 			{
 				_entities.Remove(entityId);
+#if SECS_ENABLE_EVENTS
+				OnEntityRemoved?.Invoke(entityId);
+#endif
 				_isEntitiesSetModified = true;
 			}
 		}
@@ -64,6 +72,9 @@ namespace Secs
 			if(_entities.Contains(entityId) && _matcher.IsExcluded(componentType))
 			{
 				_entities.Remove(entityId);
+#if SECS_ENABLE_EVENTS
+				OnEntityRemoved?.Invoke(entityId);
+#endif
 				_isEntitiesSetModified = true;
 				return;
 			}
@@ -75,6 +86,9 @@ namespace Secs
 			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
+#if SECS_ENABLE_EVENTS
+				OnEntityAdded?.Invoke(entityId);
+#endif
 				_isEntitiesSetModified = true;
 			}
 		}
@@ -85,6 +99,9 @@ namespace Secs
 			if(_entities.Contains(entityId) && _matcher.IsIncluded(componentType))
 			{
 				_entities.Remove(entityId);
+#if SECS_ENABLE_EVENTS
+				OnEntityRemoved?.Invoke(entityId);
+#endif
 				_isEntitiesSetModified = true;
 				return;
 			}
@@ -96,6 +113,9 @@ namespace Secs
 			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
+#if SECS_ENABLE_EVENTS
+				OnEntityAdded?.Invoke(entityId);
+#endif
 				_isEntitiesSetModified = true;
 			}
 		}
@@ -121,6 +141,9 @@ namespace Secs
 				if(EntityMatchesToTheFilterMask(entityId))
 				{
 					_entities.Add(entityId);
+#if SECS_ENABLE_EVENTS
+					OnEntityAdded?.Invoke(entityId);
+#endif
 					_isEntitiesSetModified = true;
 				}
 			}

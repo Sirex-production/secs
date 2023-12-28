@@ -8,7 +8,14 @@ namespace Secs
 		private readonly EcsWorld _world;
 		
 		private T[] _componentsBuffer;
-
+		
+#if SECS_ENABLE_EVENTS
+		public event Action<int, T> OnComponentAdded;
+		public event Action<int, T> OnComponentDeleted;
+		public event Action<int, T> OnComponentGet;
+		public event Action<int, T, T> OnComponentSet;
+#endif
+		
 		public EcsPool(int capacity, EcsWorld world)
 		{
 			_world = world ?? throw new EcsException(this, "World can't be null");
@@ -48,6 +55,10 @@ namespace Secs
 			if (!HasComponent(entityId))
 				throw new EcsException(this, $"Trying to get component that entity {entityId} does not have");
 
+#if SECS_ENABLE_EVENTS
+			OnComponentGet?.Invoke(entityId, _componentsBuffer[entityId]);
+#endif
+			
 			return ref _componentsBuffer[entityId];
 		}
 
@@ -61,7 +72,14 @@ namespace Secs
 		public void SetComponent(in int entityId, in T cmp)
 		{
 			ref var cmpRef = ref GetComponent(entityId);
+#if SECS_ENABLE_EVENTS
+			var oldCmp = cmpRef;
+#endif
 			cmpRef = cmp;
+			
+#if SECS_ENABLE_EVENTS
+			OnComponentSet?.Invoke(entityId, oldCmp, cmp);
+#endif
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,6 +105,10 @@ namespace Secs
 			
 			_world.GetEntityComponentsTypeMask(entityId).AddType<T>();
 			_world.RegisterAddedComponent<T>(entityId);
+			
+#if SECS_ENABLE_EVENTS
+			OnComponentAdded?.Invoke(entityId, _componentsBuffer[entityId]);
+#endif
 
 			return ref _componentsBuffer[entityId];
 		}
@@ -112,6 +134,10 @@ namespace Secs
 			_componentsBuffer[entityId] = default;
 			_world.GetEntityComponentsTypeMask(entityId).RemoveType<T>();
 			_world.RegisterDeletedComponent<T>(entityId);
+			
+#if SECS_ENABLE_EVENTS
+			OnComponentDeleted?.Invoke(entityId, _componentsBuffer[entityId]);
+#endif
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

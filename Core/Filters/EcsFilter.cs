@@ -59,10 +59,10 @@ namespace Secs
 			if(_world.IsEntityDead(entityId))
 			{
 				_entities.Remove(entityId);
+				_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 				OnEntityRemoved?.Invoke(entityId);
 #endif
-				_isEntitiesSetModified = true;
 			}
 		}
 
@@ -72,10 +72,10 @@ namespace Secs
 			if(_entities.Contains(entityId) && _matcher.IsExcluded(componentType))
 			{
 				_entities.Remove(entityId);
+				_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 				OnEntityRemoved?.Invoke(entityId);
 #endif
-				_isEntitiesSetModified = true;
 				return;
 			}
 			
@@ -86,10 +86,10 @@ namespace Secs
 			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
+				_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 				OnEntityAdded?.Invoke(entityId);
 #endif
-				_isEntitiesSetModified = true;
 			}
 		}
 
@@ -99,10 +99,10 @@ namespace Secs
 			if(_entities.Contains(entityId) && _matcher.IsIncluded(componentType))
 			{
 				_entities.Remove(entityId);
+				_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 				OnEntityRemoved?.Invoke(entityId);
 #endif
-				_isEntitiesSetModified = true;
 				return;
 			}
 
@@ -113,10 +113,10 @@ namespace Secs
 			if(EntityMatchesToTheFilterMask(entityId))
 			{
 				_entities.Add(entityId);
+				_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 				OnEntityAdded?.Invoke(entityId);
 #endif
-				_isEntitiesSetModified = true;
 			}
 		}
 
@@ -141,10 +141,10 @@ namespace Secs
 				if(EntityMatchesToTheFilterMask(entityId))
 				{
 					_entities.Add(entityId);
+					_isEntitiesSetModified = true;
 #if SECS_ENABLE_EVENTS
 					OnEntityAdded?.Invoke(entityId);
 #endif
-					_isEntitiesSetModified = true;
 				}
 			}
 		}

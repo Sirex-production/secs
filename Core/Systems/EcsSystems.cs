@@ -9,6 +9,10 @@ namespace Secs
 		private readonly EcsWorld _world;
 		private readonly List<IEcsSystem> _allSystems = new();
 
+#if SECS_PROFILING
+		private readonly EcsProfiler _ecsProfiler;
+#endif
+		
 		private event Action OnInitFired;
 		private event Action OnRunFired;
 		private event Action OnDisposeFired;
@@ -16,6 +20,10 @@ namespace Secs
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
+			
+#if SECS_PROFILING
+			_ecsProfiler = new EcsProfiler();
+#endif
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -26,8 +34,14 @@ namespace Secs
 			if(ecsSystem is IEcsInitSystem initSystem) 
 				OnInitFired += initSystem.OnInit;
 
-			if(ecsSystem is IEcsRunSystem runSystem) 
+			if (ecsSystem is IEcsRunSystem runSystem)
+			{
+#if SECS_PROFILING
+				OnRunFired += _ecsProfiler.CreateProfilerWrapperForRunActionSystem(runSystem);
+#else 
 				OnRunFired += runSystem.OnRun;
+#endif
+			}
 
 			if(ecsSystem is IEcsDisposeSystem disposeSystems) 
 				OnDisposeFired += disposeSystems.OnDispose;

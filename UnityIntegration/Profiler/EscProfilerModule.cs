@@ -1,10 +1,9 @@
-﻿using Unity.Profiling.Editor;
+﻿#if SECS_ENABLE_PROFILING
+using Unity.Profiling.Editor;
 using Unity.Profiling;
 
 namespace Secs.Profiler
 {
-#if SECS_PROFILING
-
     [ProfilerModuleMetadata("SECS")]
     public sealed class EscProfilerModule : ProfilerModule
     {
@@ -21,8 +20,6 @@ namespace Secs.Profiler
         {
             return new EcsModuleViewController(ProfilerWindow);
         }
-        
     }
-        
+}        
 #endif
-}

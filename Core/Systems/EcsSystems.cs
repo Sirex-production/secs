@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-
+#if SECS_ENABLE_PROFILING
+using Secs.Profiler;
+#endif
 namespace Secs
 {
 	public sealed partial class EcsSystems
@@ -9,8 +11,8 @@ namespace Secs
 		private readonly EcsWorld _world;
 		private readonly List<IEcsSystem> _allSystems = new();
 
-#if SECS_PROFILING
-		private readonly EcsProfiler _ecsProfiler;
+#if SECS_ENABLE_PROFILING
+		private readonly EcsProfiler _ecsProfiler = new EcsProfiler();
 #endif
 		
 		private event Action OnInitFired;
@@ -20,10 +22,6 @@ namespace Secs
 		public EcsSystems(EcsWorld world)
 		{
 			_world = world;
-			
-#if SECS_PROFILING
-			_ecsProfiler = new EcsProfiler();
-#endif
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,7 +34,7 @@ namespace Secs
 
 			if (ecsSystem is IEcsRunSystem runSystem)
 			{
-#if SECS_PROFILING
+#if SECS_ENABLE_PROFILING
 				OnRunFired += _ecsProfiler.CreateProfilerWrapperForRunActionSystem(runSystem);
 #else 
 				OnRunFired += runSystem.OnRun;

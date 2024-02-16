@@ -83,3 +83,6 @@ int entityId = gameObject.GetComponent<EcsEntityReference>().EntityId;
 ```
 
 Also if you are using [baking](#baking) module you can set `createEntityReference` to `true` from the Unity inspector on your baker that inherits from `EcsMonoBaker`. Then `EcsEntityReference` will be created automatically when baking process is fired
+## Profiling
+### Installation
+The profiling tool extends custom unity's profiler. To use it, add macro #SECS_ENABLE_PROFILING to the project. It's also recommended to delete that macro for release builds, but profiling would work both for dev and rel builds. 

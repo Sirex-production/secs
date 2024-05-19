@@ -17,6 +17,11 @@ namespace Secs
 			return ref GetPool<T>().AddComponent(entityId);
 		}
 		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public void AddCmpVoid<T>(in int entityId) where T : struct, IEcsComponent
+		{
+			GetPool<T>().AddComponent(entityId);
+		}
 		/// <summary>
 		/// Finds pool and uses it to get component from the entity.
 		/// </summary>
@@ -42,6 +47,16 @@ namespace Secs
 			GetPool<T>().DelComponent(entityId);
 		}
 		
+		public void TryDelCmp<T>(in int entityId) where T : struct, IEcsComponent
+		{
+			GetPool<T>().TryDelComponent(entityId);
+		}
+
+		public ref T GetOrAddCmp<T>(in int entityId) where T : struct, IEcsComponent
+		{
+			return ref GetPool<T>().GetOrAddComponent(entityId);
+		}
+
 		/// <summary>
 		/// Finds pool and uses it to check if entity has component of given type.
 		/// </summary>
@@ -68,7 +83,7 @@ namespace Secs
 			entityId = NewEntity();
 			return ref GetPool<T>().AddComponent(entityId);
 		}
-		
+
 		/// <summary>
 		/// Finds filter with given component and gets first entity from it 
 		/// </summary>
@@ -133,6 +148,38 @@ namespace Secs
 			component = default;
 			entityId = -1;
 			return false;
+		}
+
+		/// <summary>
+		/// Gets 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ref T GetSingletonCmp<T>() where T : struct, IEcsSingletonComponent
+		{
+			return ref GetSingletonPool<T>().Component;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public int GetSingletonEntity<T>() where T : struct, IEcsSingletonComponent
+		{
+			return GetSingletonPool<T>().OwnerEntity;
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public ref T AddSingletonCmp<T>(int entityId) where T : struct, IEcsSingletonComponent
+		{
+			return ref GetSingletonPool<T>().AddComponent(entityId);
+		}
+		
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool IsSingletonPresent<T>() where T : struct, IEcsSingletonComponent
+		{
+			if(!_singletonPools.ContainsKey(typeof(T)))
+				return false;
+
+			return GetSingletonPool<T>().IsPresent;
 		}
 	}
 }

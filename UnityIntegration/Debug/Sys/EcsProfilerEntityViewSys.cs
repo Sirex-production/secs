@@ -15,6 +15,7 @@ namespace Secs.Debug
         private List<EcsSystems> _systems;
         private GameObject _worldGameObject;
         private EcsSystemsObserver _ecsSystemsObserver;
+        private EcsSingletonEntitiesObserver _singletonEntitiesObserver;
         private readonly Dictionary<int, EcsEntityObserver> _entityObservers = new();
         
         public EcsProfilerEntityViewSys(EcsWorld world, List<EcsSystems> ecsSys)
@@ -23,7 +24,8 @@ namespace Secs.Debug
             _systems = ecsSys;
             
             CreateWorld();
-            
+            CreateSingletonObserver();
+
             _ecsWorld.OnEntityCreated += CreateNewObserver;
             _ecsWorld.OnEntityDeleted += DeactivateObserver;
             
@@ -34,6 +36,17 @@ namespace Secs.Debug
             foreach (var ecsWorldAliveEntity in _ecsWorld.AliveEntities)
                 CreateNewObserver(ecsWorldAliveEntity);
         }
+
+        private void CreateSingletonObserver()
+        {
+            var singletonObserverGo = new GameObject($"Singleton Components");
+            
+            _singletonEntitiesObserver = singletonObserverGo.AddComponent<EcsSingletonEntitiesObserver>();
+            _singletonEntitiesObserver._world = _ecsWorld;
+            
+            singletonObserverGo.transform.SetParent(EcsWorldsObserver.Instance.gameObject.transform);
+        }
+
         private void CreateWorld()
         {
             _worldGameObject = new GameObject($"World");

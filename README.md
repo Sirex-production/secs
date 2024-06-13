@@ -196,6 +196,45 @@ public sealed class DeletePLayer : IEcsDisposeSystem
 	}
 }
 ```
+### Reactive system
+Type of systems that can be executed only when a specific action (removing or adding component) happens.
+```csharp
+public sealed class DisposeEnemySystem : IEcsReactiveSystem
+{
+        //Filter should be used to limit a range of the system 
+        //If it's set to null, it will detect each change.
+	public EcsFilter ObserveFilter(in EcsWorld ecsWorld)
+        {
+            EcsMatcher enemyMatcher = EcsMatcher
+				.Include
+				(
+					typeof(HealthCmp),
+					typeof(EnemyCmp)
+				)
+				.End();
+            
+     
+            return ecsWorld.GetFilter(enemyMatcher);
+        }
+        
+        //The component that its change will trigger the system
+        public Type ObserveOnType()
+        {
+            return typeof(IsDeadCmp);
+        }
+
+        public void OnExecute(in int entityId)
+        {
+            //Dispose enemy
+        }
+        
+      
+        public IEcsReactiveSystem.ComponentReactiveState ObserveOnState()
+        {
+            return IEcsReactiveSystem.ComponentReactiveState.ComponentAdded;
+        }
+}
+```
 ### Combined systems 
 Different system types also can be combined  together
 ```csharp

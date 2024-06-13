@@ -125,6 +125,13 @@ namespace Secs
 				}
 			}
 		}
+
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public bool HasEntity(in int entity)
+		{
+			return _entities.Contains(entity);
+		}
+		
 #region Enumeration
 		public IEnumerator<int> GetEnumerator()
 		{

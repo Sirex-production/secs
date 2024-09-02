@@ -23,6 +23,11 @@ namespace Secs.Debug
         {
             return _colors[(index % _colors.Length)];
         }
+
+        internal static Color GetRandomColor()
+        {
+            return GetColorByIndex(Random.Range(0, _colors.Length));
+        }
     }
 }
 

@@ -114,6 +114,8 @@ if(isHungryCmpPool.HasComponent(playerEntity))
     Print("Player is hungry :(");
 ```
 
+> **Important:** a `ref T` returned by `AddComponent`/`GetComponent` is valid only until the next `AddComponent`/`DelComponent` call on the same pool. Pools use sparse-set storage, so adding or deleting a component may move other components in memory and retarget previously obtained references. Re-get the reference after structural changes.
+
 Note that there is also possibility to work with non generic API as well. 
 But keep in mind that it is slower than working with generic methods and should be avoided when possible.
 

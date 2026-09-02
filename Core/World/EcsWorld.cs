@@ -92,7 +92,7 @@ namespace Secs
 			if(!ContainsEntity(entityId))
 				throw new EcsException(this, $"Trying to manipulate non existing entity {entityId} inside world {Id}");
 
-			return _deadEntities.Contains(entityId);
+			return !_aliveEntities.Contains(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

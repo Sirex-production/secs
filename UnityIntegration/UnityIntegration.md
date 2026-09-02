@@ -19,8 +19,8 @@ public sealed class CraftingSurfaceBaker : EcsMonoBaker
         var world = YourCustomWorldLocator.GetWorldWithId("gameplay");
         int entityId = world.NewEntity();
         
-        world.GetPool<CraftingSurfaceTag>().AddComponent(entityId);
-        world.GetPool<TransformMdl>().AddComponent(entityId).transform = transform;
+        world.GetPool<CraftingSurfaceTag>().Add(entityId);
+        world.GetPool<TransformMdl>().Add(entityId).transform = transform;
     }
 }
 ```
@@ -45,8 +45,8 @@ public sealed class CraftingSurfaceBaker : EcsMonoBaker
 {
     protected override void Bake(EcsWorld world, int entityId)
     {
-        world.GetPool<CraftingSurfaceTag>().AddComponent(entityId);
-        world.GetPool<TransformMdl>().AddComponent(entityId).transform = transform;
+        world.GetPool<CraftingSurfaceTag>().Add(entityId);
+        world.GetPool<TransformMdl>().Add(entityId).transform = transform;
     }
 }
 ```

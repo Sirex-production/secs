@@ -315,7 +315,7 @@ namespace Secs.Debug
                 {
                     _ecsWorld
                         .GetType()
-                        .GetMethod(nameof(EcsWorld.DeleteComponent),BindingFlags.NonPublic | BindingFlags.Instance)?
+                        .GetMethod(nameof(EcsWorld.DelItem),BindingFlags.NonPublic | BindingFlags.Instance)?
                         .MakeGenericMethod(type)
                         .Invoke(_ecsWorld, new object[]
                             {

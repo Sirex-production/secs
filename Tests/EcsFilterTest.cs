@@ -22,17 +22,17 @@ namespace Secs.Tests
 			int newEntity = world.NewEntity();
 			
 			//Act
-			cmpAPool.AddComponent(newEntity);
-			cmpBPool.AddComponent(newEntity);
-			cmpCPool.AddComponent(newEntity);
+			cmpAPool.Add(newEntity);
+			cmpBPool.Add(newEntity);
+			cmpCPool.Add(newEntity);
 			
 			//Assert
 			foreach(int filterEntity in filter)
 			{
 				AreEqual(newEntity, filterEntity);
-				IsTrue(cmpAPool.HasComponent(filterEntity));
-				IsTrue(cmpBPool.HasComponent(filterEntity));
-				IsTrue(cmpCPool.HasComponent(filterEntity));
+				IsTrue(cmpAPool.Has(filterEntity));
+				IsTrue(cmpBPool.Has(filterEntity));
+				IsTrue(cmpCPool.Has(filterEntity));
 			}
 		}
 
@@ -52,12 +52,12 @@ namespace Secs.Tests
 			int excludedEntity = world.NewEntity();
 			
 			//Act
-			cmpAPool.AddComponent(includedEntity);
-			cmpBPool.AddComponent(includedEntity);
+			cmpAPool.Add(includedEntity);
+			cmpBPool.Add(includedEntity);
 			
-			cmpAPool.AddComponent(excludedEntity);
-			cmpBPool.AddComponent(excludedEntity);
-			cmpCPool.AddComponent(excludedEntity);
+			cmpAPool.Add(excludedEntity);
+			cmpBPool.Add(excludedEntity);
+			cmpCPool.Add(excludedEntity);
 			
 			//Assert
 			IsTrue(filter.EntitiesCount == 1);
@@ -66,9 +66,9 @@ namespace Secs.Tests
 			{
 				AreEqual(includedEntity, filterEntity);
 				
-				IsTrue(cmpAPool.HasComponent(filterEntity));
-				IsTrue(cmpBPool.HasComponent(filterEntity));
-				IsFalse(cmpCPool.HasComponent(filterEntity));
+				IsTrue(cmpAPool.Has(filterEntity));
+				IsTrue(cmpBPool.Has(filterEntity));
+				IsFalse(cmpCPool.Has(filterEntity));
 			}
 		}
 
@@ -89,12 +89,12 @@ namespace Secs.Tests
 			int excludedCmp = world.NewEntity();
 			
 			//Act
-			cmpAPool.AddComponent(includedCmp);
-			cmpBPool.AddComponent(includedCmp);
+			cmpAPool.Add(includedCmp);
+			cmpBPool.Add(includedCmp);
 			
-			cmpAPool.AddComponent(excludedCmp);
-			cmpBPool.AddComponent(excludedCmp);
-			cmpCPool.AddComponent(excludedCmp);
+			cmpAPool.Add(excludedCmp);
+			cmpBPool.Add(excludedCmp);
+			cmpCPool.Add(excludedCmp);
 			
 			var filter = world.GetFilter(matcher);
 			
@@ -105,9 +105,9 @@ namespace Secs.Tests
 			{
 				AreEqual(includedCmp, filterEntity);
 				
-				IsTrue(cmpAPool.HasComponent(filterEntity));
-				IsTrue(cmpBPool.HasComponent(filterEntity));
-				IsFalse(cmpCPool.HasComponent(filterEntity));
+				IsTrue(cmpAPool.Has(filterEntity));
+				IsTrue(cmpBPool.Has(filterEntity));
+				IsFalse(cmpCPool.Has(filterEntity));
 			}
 		}
 		
@@ -125,12 +125,12 @@ namespace Secs.Tests
 			int excludedCmp = world.NewEntity();
 			
 			//Act
-			cmpAPool.AddComponent(includedCmp);
-			cmpBPool.AddComponent(includedCmp);
-			cmpAPool.AddComponent(excludedCmp);
-			cmpBPool.AddComponent(excludedCmp);
+			cmpAPool.Add(includedCmp);
+			cmpBPool.Add(includedCmp);
+			cmpAPool.Add(excludedCmp);
+			cmpBPool.Add(excludedCmp);
 			
-			cmpBPool.DelComponent(excludedCmp);
+			cmpBPool.Del(excludedCmp);
 			
 			//Assert
 			IsTrue(filter.EntitiesCount == 1);
@@ -139,8 +139,8 @@ namespace Secs.Tests
 			{
 				AreEqual(includedCmp, filterEntity);
 				
-				IsTrue(cmpAPool.HasComponent(filterEntity));
-				IsTrue(cmpBPool.HasComponent(filterEntity));
+				IsTrue(cmpAPool.Has(filterEntity));
+				IsTrue(cmpBPool.Has(filterEntity));
 			}
 		}
 
@@ -156,11 +156,11 @@ namespace Secs.Tests
 			int aliveEntity = world.NewEntity();
 			int deadEntity = world.NewEntity();
 			
-			cmpAPool.AddComponent(aliveEntity);
-			cmpBPool.AddComponent(aliveEntity);
+			cmpAPool.Add(aliveEntity);
+			cmpBPool.Add(aliveEntity);
 			
-			cmpAPool.AddComponent(deadEntity);
-			cmpBPool.AddComponent(deadEntity);
+			cmpAPool.Add(deadEntity);
+			cmpBPool.Add(deadEntity);
 			
 			//Act
 			world.DelEntity(deadEntity);
@@ -172,8 +172,8 @@ namespace Secs.Tests
 			{
 				AreEqual(aliveEntity, filterEntity);
 				
-				IsTrue(cmpAPool.HasComponent(filterEntity));
-				IsTrue(cmpBPool.HasComponent(filterEntity));
+				IsTrue(cmpAPool.Has(filterEntity));
+				IsTrue(cmpBPool.Has(filterEntity));
 			}
 		}
 	}

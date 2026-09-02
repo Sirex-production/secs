@@ -13,19 +13,19 @@ They are just more convenient to use. We prefer to use them in not frequent oper
 All recommendations on using specific shortcut are written in the description of the shortcut in a form of documentation comments. 
 
 ```csharp
-ref var playerCmp = ref world.AddCmp<PlayerCmp>(entity);
+ref var playerCmp = ref world.Add<PlayerCmp>(entity);
 ```
 
 ```csharp
-ref var playerCmp = ref world.GetCmp<PlayerCmp>(entity);
+ref var playerCmp = ref world.Get<PlayerCmp>(entity);
 ```
 
 ```csharp
-bool hasPlayer = world.HasCmp<PlayerCmp>(entity);
+bool hasPlayer = world.Has<PlayerCmp>(entity);
 ```
 
 ```csharp
-world.DelCmp<PlayerCmp>(entity);
+world.Del<PlayerCmp>(entity);
 ```
 
 ```csharp

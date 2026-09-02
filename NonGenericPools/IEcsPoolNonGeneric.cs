@@ -2,10 +2,10 @@
 {
 	public interface IEcsPoolNonGeneric
 	{
-		IEcsComponent GetComponentCopyVirtual(in int entityId);
-		void SetComponentVirtual(in int entityId, IEcsComponent cmp);
-		void AddComponentVirtual(in int entityId, IEcsComponent cmp);
-		void DelComponentVirtual(in int entityId);
-		bool HasComponentVirtual(in int entityId);
+		IEcsComponent GetCopyVirtual(in int entityId);
+		void SetVirtual(in int entityId, IEcsComponent cmp);
+		void AddVirtual(in int entityId, IEcsComponent cmp);
+		void DelVirtual(in int entityId);
+		bool HasVirtual(in int entityId);
 	}
 }

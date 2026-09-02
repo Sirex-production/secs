@@ -10,15 +10,15 @@ namespace Secs
         /// <param name="component">Reference to component</param>
         /// <returns>TRUE if component was found. FALSE otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryGetComponent(int entity, out T component)
+        public bool TryGet(int entity, out T component)
         {
-            if(!_world.HasCmp<T>(entity))
+            if(!_world.Has<T>(entity))
             {
                 component = default;
                 return false;
             }
 
-            component = GetComponent(entity);
+            component = Get(entity);
             return true;
         }
 
@@ -27,12 +27,12 @@ namespace Secs
         /// </summary>
         /// <returns>TRUE if component was deleted. FALSE otherwise</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool TryDelComponent(in int entity)
+        public bool TryDel(in int entity)
         {
-            if(!_world.HasCmp<T>(entity))
+            if(!_world.Has<T>(entity))
                 return false;
 
-            DelComponent(entity);
+            Del(entity);
             return true;
         }
 
@@ -40,12 +40,12 @@ namespace Secs
         /// Deletes components from all entities in the filter
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DelAllComponents(EcsFilter filter)
+        public void DelAll(EcsFilter filter)
         {
             foreach (var entity in filter)
             {
-                if(HasComponent(entity))
-                    DelComponent(entity);
+                if(Has(entity))
+                    Del(entity);
             }
         }
 
@@ -55,12 +55,12 @@ namespace Secs
         /// <param name="entity">Entity to get component from</param>
         /// <returns>Reference to component</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetOrAddComponent(in int entity)
+        public ref T GetOrAdd(in int entity)
         {
-            if(HasComponent(entity))
-                return ref GetComponent(entity);
+            if(Has(entity))
+                return ref Get(entity);
 			
-            return ref AddComponent(entity);
+            return ref Add(entity);
         }
     }
 }

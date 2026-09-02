@@ -9,14 +9,14 @@ namespace Secs
             return _denseComponents[_sparse[entityId] - 1];
         }
 
-        internal void ReplaceComponent(int entityId, T newValue)
+        internal void ReplaceItem(int entityId, T newValue)
         {
             _denseComponents[_sparse[entityId] - 1] = newValue;
         }
 
-        internal void Add(int entity, T component)
+        internal void AddItem(int entity, T component)
         {
-            ref var cmp = ref AddComponent(entity);
+            ref var cmp = ref Add(entity);
             cmp = component;
         }
     }

@@ -38,7 +38,7 @@ namespace Secs
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T AddComponent(int entityId)
+        public ref T Add(int entityId)
         {
             if (_ownerEntityId > -1)
                 throw new EcsException(this, $"Trying to add another singleton component {typeof(T)} to entity {_ownerEntityId}");
@@ -48,7 +48,7 @@ namespace Secs
         }
 		
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void DelComponent()
+        public void Del()
         {
             _component = default;
             _ownerEntityId = -1;

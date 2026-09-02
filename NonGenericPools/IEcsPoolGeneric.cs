@@ -2,8 +2,8 @@
 {
 	public interface IEcsPoolGeneric<T>
 	{
-		ref T GetComponent(in int entityId);
-		void SetComponent(in int entityId, in T cmp);
-		ref T AddComponent(in int entityId);
+		ref T Get(in int entityId);
+		void Set(in int entityId, in T cmp);
+		ref T Add(in int entityId);
 	}
 }

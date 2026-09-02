@@ -15,22 +15,22 @@ namespace Secs
         
         internal void ReplaceItem<T>(int entity, T newValue) where T : struct, IEcsComponent
         {
-            GetPool<T>().ReplaceComponent(entity, newValue);
+            GetPool<T>().ReplaceItem(entity, newValue);
         }
         
         internal void AddItem<T>(int entity, T newValue) where T : struct, IEcsComponent
         {
-            GetPool<T>().Add(entity, newValue);
+            GetPool<T>().AddItem(entity, newValue);
         }
 
-        internal void DeleteComponent<T>(int i) where T : struct, IEcsComponent
+        internal void DelItem<T>(int i) where T : struct, IEcsComponent
         {
-            GetPool<T>().DelComponent(i);
+            GetPool<T>().Del(i);
         }
 
         internal bool IsSame<T>(int i, ref object d) where T : struct, IEcsComponent
         {
-            return Equals(GetPool<T>().GetComponent(i), d);
+            return Equals(GetPool<T>().Get(i), d);
         }
     }
 }

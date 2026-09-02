@@ -12,15 +12,15 @@ namespace Secs
 		/// <returns>Added component</returns>
 		/// <remarks>Try to use cached pool instead in very frequent operations since it is faster</remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ref T AddCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public ref T Add<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			return ref GetPool<T>().AddComponent(entityId);
+			return ref GetPool<T>().Add(entityId);
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddCmpVoid<T>(in int entityId) where T : struct, IEcsComponent
+		public void AddVoid<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			GetPool<T>().AddComponent(entityId);
+			GetPool<T>().Add(entityId);
 		}
 		/// <summary>
 		/// Finds pool and uses it to get component from the entity.
@@ -30,9 +30,9 @@ namespace Secs
 		/// <returns>Found attached component</returns>
 		/// <remarks>Try to use cached pool instead in very frequent operations since it is faster</remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ref T GetCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public ref T Get<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			return ref GetPool<T>().GetComponent(entityId);
+			return ref GetPool<T>().Get(entityId);
 		}
 		
 		/// <summary>
@@ -42,19 +42,19 @@ namespace Secs
 		/// <typeparam name="T">Type of component</typeparam>
 		/// <remarks>Try to use cached pool instead in very frequent operations since it is faster</remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DelCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public void Del<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			GetPool<T>().DelComponent(entityId);
+			GetPool<T>().Del(entityId);
 		}
 		
-		public void TryDelCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public void TryDel<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			GetPool<T>().TryDelComponent(entityId);
+			GetPool<T>().TryDel(entityId);
 		}
 
-		public ref T GetOrAddCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public ref T GetOrAdd<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			return ref GetPool<T>().GetOrAddComponent(entityId);
+			return ref GetPool<T>().GetOrAdd(entityId);
 		}
 
 		/// <summary>
@@ -65,9 +65,9 @@ namespace Secs
 		/// <returns>TRUE if component is present. FALSE otherwise</returns>
 		/// <remarks>Try to use cached pool instead in very frequent operations since it is faster</remarks>
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool HasCmp<T>(in int entityId) where T : struct, IEcsComponent
+		public bool Has<T>(in int entityId) where T : struct, IEcsComponent
 		{
-			return GetPool<T>().HasComponent(entityId);
+			return GetPool<T>().Has(entityId);
 		}
 		
 		/// <summary>
@@ -81,7 +81,7 @@ namespace Secs
 		public ref T NewEntityWithCmp<T>(out int entityId) where T : struct, IEcsComponent
 		{
 			entityId = NewEntity();
-			return ref GetPool<T>().AddComponent(entityId);
+			return ref GetPool<T>().Add(entityId);
 		}
 
 		/// <summary>
@@ -119,7 +119,7 @@ namespace Secs
 		{
 			if(TryGetFirstEntityWithCmp<T>(out int entityId))
 			{
-				component = GetPool<T>().GetComponent(entityId);
+				component = GetPool<T>().Get(entityId);
 				return true;
 			}
 
@@ -140,7 +140,7 @@ namespace Secs
 		{
 			if(TryGetFirstEntityWithCmp<T>(out int firstEntityId))
 			{
-				component = GetPool<T>().GetComponent(firstEntityId);
+				component = GetPool<T>().Get(firstEntityId);
 				entityId = firstEntityId;
 				return true;
 			}
@@ -170,7 +170,7 @@ namespace Secs
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public ref T AddSingletonCmp<T>(int entityId) where T : struct, IEcsSingletonComponent
 		{
-			return ref GetSingletonPool<T>().AddComponent(entityId);
+			return ref GetSingletonPool<T>().Add(entityId);
 		}
 		
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]

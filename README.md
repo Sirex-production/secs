@@ -78,8 +78,8 @@ public sealed class MovePlayerSystem : IEcsRunSystem
 	    //Iterating through all entities that have PlayerCmp and VelocityCmp
 		foreach(var playerEntity in _playerFilter)
 		{
-			ref PlayerCmp playerCmp = ref _playerFilter.GetComponent(playerEntity);
-			ref VelocityCmp velocityCmp = ref _velocityPool.GetComponent(playerEntity);
+			ref PlayerCmp playerCmp = ref _playerPool.Get(playerEntity);
+			ref VelocityCmp velocityCmp = ref _velocityPool.Get(playerEntity);
 			
 			//Launching player to the space
 			velocityCmp.velocity += Vector3.up * playerCmp.speed * Time.deltaTime;
@@ -98,23 +98,23 @@ EcsPool<ApplyDamageCmp> applyDamageCmpPool = world.GetPool<ApplyDamageCmp>();
 EcsPool<IsHungryCmp> isHungryCmpPool = world.GetPool<IsHungryCmp>();
 
 // Gettings components from the entity
-ref HealthCmp healthCmp = ref healthCmpPool.GetComponent(playerEntity);
-ref ApplyDamageCmp applyDamageCmp = ref applyDamageCmpPool.GetComponent(playerEntity);
+ref HealthCmp healthCmp = ref healthCmpPool.Get(playerEntity);
+ref ApplyDamageCmp applyDamageCmp = ref applyDamageCmpPool.Get(playerEntity);
 
 // Mutating component's data
 healthCmp.currentHealth -= applyDamageCmp.damage;
 
 // Deleting component from the entity	
-applyDamageCmpPool.DelComponent(playerEntity);
+applyDamageCmpPool.Del(playerEntity);
 
 // Adding component to the entity
-isHappyCmpPool.AddComponent(playerEntity);
+isHappyCmpPool.Add(playerEntity);
 
-if(isHungryCmpPool.HasComponent(playerEntity))
+if(isHungryCmpPool.Has(playerEntity))
     Print("Player is hungry :(");
 ```
 
-> **Important:** a `ref T` returned by `AddComponent`/`GetComponent` is valid only until the next `AddComponent`/`DelComponent` call on the same pool. Pools use sparse-set storage, so adding or deleting a component may move other components in memory and retarget previously obtained references. Re-get the reference after structural changes.
+> **Important:** a `ref T` returned by `Add`/`Get` is valid only until the next `Add`/`Del` call on the same pool. Pools use sparse-set storage, so adding or deleting a component may move other components in memory and retarget previously obtained references. Re-get the reference after structural changes.
 
 Note that there is also possibility to work with non generic API as well. 
 But keep in mind that it is slower than working with generic methods and should be avoided when possible.
@@ -128,21 +128,21 @@ EcsPool<IsHungryCmp> isHungryCmpPool = (EcsPool<IsHungryCmp>)world.GetPool(typeo
 
 // Gettings components from the entity. Note that in that case you can not get component by reference
 // and have to manually cast to correct component type.
-HealthCmp healthCmpCopy = (HealthCmp)healthCmpPool.GetComponentCopy(playerEntity);
-ApplyDamageCmp applyDamageCmpCopy = (HealthCmp)applyDamageCmpPool.GetComponent(playerEntity);
+HealthCmp healthCmpCopy = (HealthCmp)healthCmpPool.GetCopy(playerEntity);
+ApplyDamageCmp applyDamageCmpCopy = (ApplyDamageCmp)applyDamageCmpPool.GetCopy(playerEntity);
 
 // Mutating component's data (Don't forget to set component back in order to apply changes)
 healthCmpCopy.currentHealth -= applyDamageCmp.damage;
-healthCmpPool.SetComponent(playerEntity, healthCmpCopy);
+healthCmpPool.Set(playerEntity, healthCmpCopy);
 
 // Deleting component from the entity	
-applyDamageCmpPool.DelComponent(playerEntity);
+applyDamageCmpPool.Del(playerEntity);
 
 // Adding component to the entity
 IsHappyCmp isHappyCmp = new IsHappyCmp();
-isHappyCmpPool.AddComponent(playerEntity, isHappyCmp);
+isHappyCmpPool.Add(playerEntity, isHappyCmp);
 
-if(isHungryCmpPool.HasComponent(playerEntity))
+if(isHungryCmpPool.Has(playerEntity))
     Print("Player is hungry :(");
 ```
 As you can see such approach is less convenient and has less compile time safety. So try to avoid it when possible.

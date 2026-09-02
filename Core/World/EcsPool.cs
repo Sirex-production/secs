@@ -80,7 +80,7 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ref T GetComponent(in int entityId)
+		public ref T Get(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
 				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
@@ -92,29 +92,29 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IEcsComponent GetComponentCopy(in int entityId)
+		public IEcsComponent GetCopy(in int entityId)
 		{
-			return GetComponent(entityId);
+			return Get(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetComponent(in int entityId, in T cmp)
+		public void Set(in int entityId, in T cmp)
 		{
-			ref var cmpRef = ref GetComponent(entityId);
+			ref var cmpRef = ref Get(entityId);
 			cmpRef = cmp;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetComponent(in int entityId, IEcsComponent cmp)
+		public void Set(in int entityId, IEcsComponent cmp)
 		{
 			if(cmp is not T cmpT)
 				throw new EcsException(this, $"Trying to set component of type {cmp.GetType()} to pool of type {typeof(T)}");
 
-			SetComponent(entityId, cmpT);
+			Set(entityId, cmpT);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ref T AddComponent(in int entityId)
+		public ref T Add(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
 				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
@@ -139,16 +139,16 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddComponent(in int entityId, IEcsComponent cmp)
+		public void Add(in int entityId, IEcsComponent cmp)
 		{
 			if(cmp is not T cmpT)
 				throw new EcsException(this, $"Trying to add component of type {cmp.GetType()} to pool of type {typeof(T)}");
 
-			AddComponent(entityId) = cmpT;
+			Add(entityId) = cmpT;
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DelComponent(in int entityId)
+		public void Del(in int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
 				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");
@@ -162,7 +162,7 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool HasComponent(in int entityId)
+		public bool Has(in int entityId)
 		{
 			if(!_world.ContainsEntity(entityId))
 				throw new EcsException(this, $"Trying to manipulate non existing entity {entityId}");

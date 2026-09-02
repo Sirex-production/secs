@@ -20,7 +20,7 @@ namespace Secs.Tests
 			int entity = world.NewEntity();
 
 			//Act && Assert
-			Assert.IsFalse(pool.HasComponent(entity));
+			Assert.IsFalse(pool.Has(entity));
 		}
 
 		[Test]
@@ -31,10 +31,10 @@ namespace Secs.Tests
 			int entity = world.NewEntity();
 
 			//Act
-			pool.AddComponent(entity);
+			pool.Add(entity);
 
 			//Assert
-			Assert.IsTrue(pool.HasComponent(entity));
+			Assert.IsTrue(pool.Has(entity));
 		}
 
 		[Test]
@@ -48,13 +48,13 @@ namespace Secs.Tests
 			int entity = world.NewEntity();
 
 			//Act
-			pool.AddComponent(entity) = new CmpA
+			pool.Add(entity) = new CmpA
 			{
 				value = constantCmpValue
 			};
 
 			//Assert
-			Assert.AreEqual(pool.GetComponent(entity).value, constantCmpValue);
+			Assert.AreEqual(pool.Get(entity).value, constantCmpValue);
 		}
 
 		[Test]
@@ -73,12 +73,12 @@ namespace Secs.Tests
 			};
 
 			//Act
-			pool.AddComponent(entity) = initialComponent;
-			ref var cmpA = ref pool.GetComponent(entity);
+			pool.Add(entity) = initialComponent;
+			ref var cmpA = ref pool.Get(entity);
 			cmpA.value = constantNewCmpValue;
 
 			//Assert
-			Assert.AreEqual(pool.GetComponent(entity).value, constantNewCmpValue);
+			Assert.AreEqual(pool.Get(entity).value, constantNewCmpValue);
 		}
 
 		[Test]
@@ -89,11 +89,11 @@ namespace Secs.Tests
 			int entity = world.NewEntity();
 
 			//Act
-			pool.AddComponent(entity);
-			pool.DelComponent(entity);
+			pool.Add(entity);
+			pool.Del(entity);
 
 			//Assert
-			Assert.IsFalse(pool.HasComponent(entity));
+			Assert.IsFalse(pool.Has(entity));
 		}
 #endregion
 
@@ -113,8 +113,8 @@ namespace Secs.Tests
 			};
 
 			//Act
-			pool.AddComponent(entity, component);
-			var cmpACopy = (CmpA)pool.GetComponentCopy(entity);
+			pool.Add(entity, component);
+			var cmpACopy = (CmpA)pool.GetCopy(entity);
 
 			//Assert
 			Assert.AreEqual(cmpACopy.value, constantCmpValue);
@@ -140,11 +140,11 @@ namespace Secs.Tests
 			};
 
 			//Act
-			pool.AddComponent(entity, initialComponent);
-			pool.SetComponent(entity, newComponent);
+			pool.Add(entity, initialComponent);
+			pool.Set(entity, newComponent);
 
 			//Assert
-			var cmpACopy = (CmpA)pool.GetComponentCopy(entity);
+			var cmpACopy = (CmpA)pool.GetCopy(entity);
 			Assert.AreEqual(cmpACopy.value, constantNewCmpValue);
 		}
 #endregion
@@ -160,16 +160,16 @@ namespace Secs.Tests
 			int entityB = world.NewEntity();
 			int entityC = world.NewEntity();
 
-			pool.AddComponent(entityA) = new CmpA { value = 1 };
-			pool.AddComponent(entityB) = new CmpA { value = 2 };
-			pool.AddComponent(entityC) = new CmpA { value = 3 };
+			pool.Add(entityA) = new CmpA { value = 1 };
+			pool.Add(entityB) = new CmpA { value = 2 };
+			pool.Add(entityC) = new CmpA { value = 3 };
 
 			//Act
-			pool.DelComponent(entityB);
+			pool.Del(entityB);
 
 			//Assert
-			Assert.AreEqual(pool.GetComponent(entityA).value, 1);
-			Assert.AreEqual(pool.GetComponent(entityC).value, 3);
+			Assert.AreEqual(pool.Get(entityA).value, 1);
+			Assert.AreEqual(pool.Get(entityC).value, 3);
 		}
 
 		[Test]
@@ -183,16 +183,16 @@ namespace Secs.Tests
 			int entity = world.NewEntity();
 			int otherEntity = world.NewEntity();
 
-			pool.AddComponent(otherEntity) = new CmpA { value = constantCmpValue };
-			pool.AddComponent(entity) = new CmpA { value = constantCmpValue };
+			pool.Add(otherEntity) = new CmpA { value = constantCmpValue };
+			pool.Add(entity) = new CmpA { value = constantCmpValue };
 
 			//Act
-			pool.DelComponent(entity);
+			pool.Del(entity);
 			int reusedEntity = world.NewEntity();
-			pool.AddComponent(reusedEntity);
+			pool.Add(reusedEntity);
 
 			//Assert
-			Assert.AreEqual(pool.GetComponent(reusedEntity).value, 0);
+			Assert.AreEqual(pool.Get(reusedEntity).value, 0);
 		}
 
 		[Test]
@@ -203,7 +203,7 @@ namespace Secs.Tests
 			var pool = world.GetPool<CmpA>();
 			int entity = world.NewEntity();
 
-			pool.AddComponent(entity) = new CmpA { value = 33 };
+			pool.Add(entity) = new CmpA { value = 33 };
 
 			//Act
 			world.DelEntity(entity);
@@ -211,7 +211,7 @@ namespace Secs.Tests
 
 			//Assert
 			Assert.AreEqual(entity, reusedEntity);
-			Assert.IsFalse(pool.HasComponent(reusedEntity));
+			Assert.IsFalse(pool.Has(reusedEntity));
 		}
 
 		[Test]
@@ -228,15 +228,15 @@ namespace Secs.Tests
 			for (int i = 0; i < constantEntitiesAmount; i++)
 			{
 				entities[i] = world.NewEntity();
-				pool.AddComponent(entities[i]) = new CmpA { value = i };
+				pool.Add(entities[i]) = new CmpA { value = i };
 			}
 
 			for (int i = 0; i < constantEntitiesAmount; i += 2)
-				pool.DelComponent(entities[i]);
+				pool.Del(entities[i]);
 
 			//Assert
 			for (int i = 1; i < constantEntitiesAmount; i += 2)
-				Assert.AreEqual(pool.GetComponent(entities[i]).value, i);
+				Assert.AreEqual(pool.Get(entities[i]).value, i);
 		}
 
 		[Test]
@@ -247,10 +247,10 @@ namespace Secs.Tests
 			var pool = world.GetPool<CmpA>();
 			int entity = world.NewEntity();
 
-			pool.AddComponent(entity);
+			pool.Add(entity);
 
 			//Act && Assert
-			Assert.DoesNotThrow(() => pool.DelComponent(entity));
+			Assert.DoesNotThrow(() => pool.Del(entity));
 			Assert.IsTrue(world.IsEntityDead(entity));
 		}
 
@@ -273,18 +273,18 @@ namespace Secs.Tests
 					return;
 
 				hasListenerFired = true;
-				pool.AddComponent(otherEntity) = new CmpA { value = constantInnerCmpValue };
+				pool.Add(otherEntity) = new CmpA { value = constantInnerCmpValue };
 			}
 
 			world.OnComponentAddedToEntity += OnComponentAdded;
 
 			//Act
-			pool.AddComponent(entity) = new CmpA { value = constantOuterCmpValue };
+			pool.Add(entity) = new CmpA { value = constantOuterCmpValue };
 			world.OnComponentAddedToEntity -= OnComponentAdded;
 
 			//Assert
-			Assert.AreEqual(pool.GetComponent(entity).value, constantOuterCmpValue);
-			Assert.AreEqual(pool.GetComponent(otherEntity).value, constantInnerCmpValue);
+			Assert.AreEqual(pool.Get(entity).value, constantOuterCmpValue);
+			Assert.AreEqual(pool.Get(otherEntity).value, constantInnerCmpValue);
 		}
 
 		[Test]
@@ -301,7 +301,7 @@ namespace Secs.Tests
 				lastEntity = world.NewEntity();
 
 			//Act
-			pool.AddComponent(lastEntity);
+			pool.Add(lastEntity);
 
 			//Assert
 			Assert.AreEqual(lastEntity, constantEntitiesAmount - 1);

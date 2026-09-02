@@ -44,7 +44,7 @@ namespace Secs
         internal static void RegisterTriggerEnterEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onTriggerEnterEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onTriggerEnterEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    
@@ -52,7 +52,7 @@ namespace Secs
         internal static void RegisterTriggerStayEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onTriggerStayEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onTriggerStayEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    
@@ -60,7 +60,7 @@ namespace Secs
         internal static void RegisterTriggerExitEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onTriggerExitEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onTriggerExitEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    
@@ -68,7 +68,7 @@ namespace Secs
         internal static void RegisterCollisionEnterEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onCollisionEnterEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onCollisionEnterEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    
@@ -76,7 +76,7 @@ namespace Secs
         internal static void RegisterCollisionStayEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onCollisionStayEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onCollisionStayEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    
@@ -84,7 +84,7 @@ namespace Secs
         internal static void RegisterCollisionExitEvent(Transform senderGameObject, Collider collider)
         {
             var eventEntity = _ecsWorld.NewEntity();
-            ref var eventComponent = ref _onCollisionExitEvent.AddComponent(eventEntity);
+            ref var eventComponent = ref _onCollisionExitEvent.Add(eventEntity);
             eventComponent.collider = collider;
             eventComponent.senderObject = senderGameObject;
         }    

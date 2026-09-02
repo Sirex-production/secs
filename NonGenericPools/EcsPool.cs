@@ -5,33 +5,33 @@ namespace Secs
 	public partial class EcsPool<T> : IEcsPoolGeneric<T>, IEcsPoolNonGeneric where T : struct, IEcsComponent
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public IEcsComponent GetComponentCopyVirtual(in int entityId)
+		public IEcsComponent GetCopyVirtual(in int entityId)
 		{
-			return GetComponentCopy(entityId);
+			return GetCopy(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SetComponentVirtual(in int entityId, IEcsComponent cmp)
+		public void SetVirtual(in int entityId, IEcsComponent cmp)
 		{
-			SetComponent(entityId, cmp);
+			Set(entityId, cmp);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void AddComponentVirtual(in int entityId, IEcsComponent cmp)
+		public void AddVirtual(in int entityId, IEcsComponent cmp)
 		{
-			AddComponent(entityId, cmp);
+			Add(entityId, cmp);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void DelComponentVirtual(in int entityId)
+		public void DelVirtual(in int entityId)
 		{
-			DelComponent(entityId);
+			Del(entityId);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public bool HasComponentVirtual(in int entityId)
+		public bool HasVirtual(in int entityId)
 		{
-			return HasComponent(entityId);
+			return Has(entityId);
 		}
 	}
 }

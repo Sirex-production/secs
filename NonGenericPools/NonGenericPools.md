@@ -9,7 +9,7 @@ public void AddAllComponentsToTheEntity(EcsWorld world, int entity, Type[] someC
     foreach(var type in someCmpTypes)
     {
         object pool = world.GetPool(type);
-        pool.AddComponent(entity); //it is not possible with generics as type of pool is not defined 
+        pool.Add(entity); //it is not possible with generics as type of pool is not defined 
     }
 }
 ```
@@ -22,7 +22,7 @@ public void AddAllComponentsToTheEntity(EcsWorld world, int entity, Type[] someC
     foreach(var type in someCmpTypes)
     {
         IEcsPoolNonGeneric pool = world.GetNonGenericPool(type);
-        pool.AddComponentVirtual(entity); 
+        pool.AddVirtual(entity); 
     }
 }
 ```
@@ -37,15 +37,15 @@ var component = new SomeCmp
     value = 1
 };
 
-pool.AddComponentVirtual(entity, component);
-var componentCopy = pool.GetComponentCopyVirtual(entity);
+pool.AddVirtual(entity, component);
+var componentCopy = pool.GetCopyVirtual(entity);
 componentCopy.value = 2;
 
-pool.SetComponentVirtual(entity, componentCopy);
+pool.SetVirtual(entity, componentCopy);
 
-pool.DelComponentVirtual(entity);
+pool.DelVirtual(entity);
 
-bool hasSomeCmp = pool.HasComponentVirtual(entity);
+bool hasSomeCmp = pool.HasVirtual(entity);
 ```
 
 ## Performance

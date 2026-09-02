@@ -114,7 +114,7 @@ namespace Secs
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public ref T Add(in int entityId)
+		public ref T Add(int entityId)
 		{
 			if(_world.IsEntityDead(entityId))
 				throw new EcsException(this, $"Trying to manipulate with dead entity {entityId}");

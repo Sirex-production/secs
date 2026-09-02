@@ -81,7 +81,8 @@ namespace Secs
 		public ref T NewEntityWithCmp<T>(out int entityId) where T : struct, IEcsComponent
 		{
 			entityId = NewEntity();
-			return ref GetPool<T>().Add(entityId);
+			int cachedEntityId = entityId;
+			return ref GetPool<T>().Add(cachedEntityId);
 		}
 
 		/// <summary>

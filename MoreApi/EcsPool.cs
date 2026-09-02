@@ -55,7 +55,7 @@ namespace Secs
         /// <param name="entity">Entity to get component from</param>
         /// <returns>Reference to component</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref T GetOrAdd(in int entity)
+        public ref T GetOrAdd(scoped in int entity)
         {
             if(Has(entity))
                 return ref Get(entity);

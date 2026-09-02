@@ -7,6 +7,7 @@ using Godot;
 
 namespace Secs.Debug
 {
+	[Tool]
 	public sealed partial class EcsToolDock : HSplitContainer
 	{
 		private const double RefreshInterval = 0.2;
@@ -41,7 +42,7 @@ namespace Secs.Debug
 
 		public override void _Ready()
 		{
-			SplitOffset = 320;
+			SplitOffsets = new[] { 320 };
 
 			_tree.HideRoot = true;
 			_tree.SizeFlagsHorizontal = SizeFlags.ExpandFill;

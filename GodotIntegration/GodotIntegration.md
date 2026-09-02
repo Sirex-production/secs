@@ -6,6 +6,8 @@ This module contains a set of solutions that will help you to integrate **SECS**
 
 SECS is meant to be dropped into a Godot project as a folder (e.g. `Vendor/secs/`). Godot compiles every `.cs` file in the project into a single assembly, so `internal` members of the framework are reachable.
 
+Requires **Godot 4.6+** — the editor tool (`EditorTool/SecsEcsToolPlugin.cs`, `EditorTool/EcsToolDock.cs`) uses the `EditorDock` docking API introduced in that version.
+
 - Delete the modules that are not in use — `UnityIntegration/` and `Tests/` reference Unity and NUnit and will not compile in Godot.
 - The `Secs.asmdef` file is ignored by Godot, you can keep it.
 - The editor tool depends on the `NonGenericPools/` module — keep that folder. The tool code is wrapped in `#if TOOLS` so it is compiled only in editor builds and excluded from exported games.
